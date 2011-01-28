@@ -6,7 +6,7 @@ Requires at least: 3.x
 Tested up to: 3.0.4
 Stable tag: trunk
 
-Email Before Download presents your users with a form where they submit information, like their name and email address, prior to receiving a download. This plugin integrates with the popular Contact Form 7 and Download Monitor plugins, allowing you to create any form you like and manage/monitor your file downloads.  Prior to installing Email Before Download, please confirm each of these dependent plugins is already installed.
+Email Before Download presents your users with a form where they submit information, like their name and email address, prior to receiving a download.
 
 Plugin homepage: http://www.mandsconsulting.com/products/wp-email-before-download
 
