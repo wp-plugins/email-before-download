@@ -6,21 +6,35 @@ Requires at least: 3.x
 Tested up to: 3.0.4
 Stable tag: trunk
 
-Email Before Download presents your users with a form where they submit information, like their email address, prior to receiving a download. This plugin integrates with the popular Contact Form 7 and Download Monitor plugins. Prior to installing Email Before Download, please confirm each of these dependent plugins is already installed and in use.
+Email Before Download presents your users with a form where they submit information, like their name and email address, prior to receiving a download. This plugin integrates with the popular Contact Form 7 and Download Monitor plugins, allowing you to create any form you like and manage/monitor your file downloads.  Prior to installing Email Before Download, please confirm each of these dependent plugins is already installed.
 
 Plugin homepage: http://www.mandsconsulting.com/products/wp-email-before-download
 
 == Description ==
 
-Email Before Download presents your users with a form where they submit information, like their email address, prior to receiving a download. This plugin integrates with the popular Contact Form 7 and Download Monitor plugins. Prior to installing Email Before Download, please confirm each of these dependent plugins is already installed and in use.
+Email Before Download presents your users with a form where they submit information, like their name and email address, prior to receiving a download. This plugin integrates with the popular Contact Form 7 and Download Monitor plugins, allowing you to create any form you like and manage/monitor your file downloads.  Prior to installing Email Before Download, please confirm each of these dependent plugins is already installed.
+
+As an option, you can configure Email Before Download to:
+
+1. Display a link to your file directly under the contact form once it is submitted.  This happens dynamically, inline of your post/page.
+1. Send the user an email with a link to download your file.
+1. Both #1 and #2
+
 
 Usage
+
+Note: You can see screenshots at [http://wordpress.org/extend/plugins/email-before-download/screenshots/](http://bit.ly/g4r1w2)
 
 1. Create a contact form used by Email Before Download using Contact Form 7 and note the Contact Form ID
 1. Upload a file using Download Monitor and note the Download ID
 1. Navigate to the Post (or Page) you wish to include
 1. Add the following short code using the IDs collected in the first two steps
    [email-download download_id="X" contact_form_id="Y"]
+   
+
+
+Plugin homepage: [http://www.mandsconsulting.com/products/wp-email-before-download](http://www.mandsconsulting.com/products/wp-email-before-download)
+
 
 == Installation ==
 
@@ -54,11 +68,11 @@ WordPress allows direct access to any files in your upload directories using a d
 
 = So someone can still download my files directly without providing their email? =
 
-Users generally do not have a desire to put in the work required to determine your direct upload filenames.  This plugin provides a quick way to know who is downloading information that you might feel to be more premium content like whitepapers, images, etc. from sincere users who are visiting your site, with the understanding the user can share the file itself or the URL if they desire.
+Users generally do not have a desire to put in the work required to determine your direct upload filenames.  This plugin provides a quick way to know who is downloading information that you might feel to be more premium content like whitepapers, images, etc. from sincere users who are visiting your site, with the understanding the user can share the file itself or the URL if they wish.
 
 = What if I don't want the user to be able to share the file? =
 
-We can't help you prevent a user from sharing a file they have downloaded with other people.  If you have very valuable content that want to secure from being hacked or shared 100% of the time without collecting an email address, please let us know if you find anything elegant.  Also, there is a chance you fit more into the category of needing to charge for the content.
+We can't help you prevent a user from sharing a file they have downloaded with other people.  We are however working on allowing you to set some options that will make sharing links a little more difficult.  Also, there is a chance you fit more into the category of needing to charge for the content which is something this plugin does not currently address.
 
 
 
