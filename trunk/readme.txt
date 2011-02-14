@@ -12,7 +12,7 @@ Plugin homepage: http://www.mandsconsulting.com/products/wp-email-before-downloa
 
 == Description ==
 
-Email Before Download presents your users with a form where they submit information, like their name and email address, prior to receiving a download. This plugin integrates with the popular Contact Form 7 and Download Monitor plugins, allowing you to create any form you like and manage/monitor your file downloads.  Prior to installing Email Before Download, please confirm each of these dependent plugins is already installed.
+Email Before Download presents your users with a form where they submit information, like their name and email address, prior to receiving a download. This plugin integrates with the popular Contact Form 7 and Download Monitor plugins, allowing you to create any form you like and manage/monitor your file downloads.  Prior to installing Email Before Download, please confirm each of these dependent plugins is already installed and working independently.
 
 As an option, you can configure Email Before Download to:
 
@@ -46,9 +46,6 @@ Plugin homepage: [http://www.mandsconsulting.com/products/wp-email-before-downlo
 
 == Frequently Asked Questions ==
 
-= Does this plugin add any database objects? =
-
-We do not create any database objects.  We simply integrate with the Contact Form 7 and Download Monitor plugins' capabilities.
 
 = What if I don't use the Contact Form 7 and/or Download Monintor Plugins? =
 
