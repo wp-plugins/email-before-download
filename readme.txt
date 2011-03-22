@@ -3,7 +3,7 @@ Contributors: mandsconsulting
 Donate link: http://www.mandsconsulting.com/
 Tags: email, download
 Requires at least: 3.x
-Tested up to: 3.0.4
+Tested up to: 3.1
 Stable tag: trunk
 
 Email Before Download presents your users with a form where they submit information, like their name and email address, prior to receiving a download.
@@ -17,7 +17,7 @@ Email Before Download presents your users with a form where they submit informat
 As an option, you can configure Email Before Download to:
 
 1. Display a link to your file directly under the contact form once it is submitted.  This happens dynamically, inline of your post/page.
-1. Send the user an email with a link to download your file.
+1. Send the user an email with a link and/or attachment to download your file.
 1. Both #1 and #2
 
 
@@ -46,6 +46,9 @@ Plugin homepage: [http://www.mandsconsulting.com/products/wp-email-before-downlo
 
 == Frequently Asked Questions ==
 
+= Can I export a list of download requests people have made? =
+
+Yes.  We store a log of the downloads and you can export a CSV file of this from the Email Before Download settings page in your admin screens.
 
 = What if I don't use the Contact Form 7 and/or Download Monintor Plugins? =
 
@@ -57,19 +60,11 @@ If you decide to configure the Email Before Download option to send the user an 
 
 = What happens after the user completes the form? =
 
-By default, the user is presented with a link to download their file.  There is also an option to email a link to the file, which can be done instead of (or in addition to) displaying the link inline.
+By default, the user is presented with a link to download their file.  There is also an option to email the user (with a link to the file and/or attachment) if you choose that route.  You can even provide both the inline link as well as the email if you choose.
 
 = Are you changing any of my file or directory permissions? =
 
-WordPress allows direct access to any files in your upload directories using a direct URL and we do not change those permissions.
-
-= So someone can still download my files directly without providing their email? =
-
-Users generally do not have a desire to put in the work required to determine your direct upload filenames.  This plugin provides a quick way to know who is downloading information that you might feel to be more premium content like whitepapers, images, etc. from sincere users who are visiting your site, with the understanding the user can share the file itself or the URL if they wish.
-
-= What if I don't want the user to be able to share the file? =
-
-We can't help you prevent a user from sharing a file they have downloaded with other people.  We are however working on allowing you to set some options that will make sharing links a little more difficult.  Also, there is a chance you fit more into the category of needing to charge for the content which is something this plugin does not currently address.
+WordPress allows direct access to files in your upload directories using a direct URL and we do not change those permissions.  We do provide an option to mask the URL to your downloads if you have cURL enabled.
 
 
 
@@ -84,10 +79,21 @@ We can't help you prevent a user from sharing a file they have downloaded with o
 
 == Changelog ==
 
+= 1.0 =
+* Added ability to export log in CSV format from admin settings page.
+* Added ability to mask download file's URL if cURL is enabled.
+* Added ability to expire the download link after a given timeframe.
+* In addition to emailing a link to the file, added ability to email the file as an attachment.
+* Added ability to email attachment.
+* Added ability to download files outside of Download Monitor.
+
 = 0.5 =
 * First release.
 
 == Upgrade Notice ==
+
+= 1.0 =
+Automatically upgrade the plugin and all previous settings should remain intact.
 
 = 0.5 =
 First release.

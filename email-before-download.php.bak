@@ -92,9 +92,6 @@ function emailreqtag_func($atts) {
       $ebd_item = $wpdb->get_row( "SELECT * FROM $table_item  WHERE download_id = ".$wpdb->escape($download_id).";" );
     }
     else $download_id = $ebd_item->id;
-    //update title if needed
-    if(($title != NULL || $title != '') && $ebd_item->title != $title)
-      $wpdb->update( $table_item, array("title"=>$title), array("id"=>$download_id) );
   }
   else if($file){
 
@@ -110,9 +107,6 @@ function emailreqtag_func($atts) {
 
     }
     else $download_id = $ebd_item->id;
-    //update title if needed
-    if(($title != NULL || $title != '') && $ebd_item->title != $title)
-      $wpdb->update( $table_item, array("title"=>$title), array("id"=>$download_id) );
 
   }
   $contact_form = do_shortcode("[contact-form $contact_form_id \"$title\"]");
