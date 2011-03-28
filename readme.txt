@@ -84,7 +84,6 @@ WordPress allows direct access to files in your upload directories using a direc
 * Added ability to mask download file's URL if cURL is enabled.
 * Added ability to expire the download link after a given timeframe.
 * In addition to emailing a link to the file, added ability to email the file as an attachment.
-* Added ability to email attachment.
 * Added ability to download files outside of Download Monitor.
 
 = 0.5 =
