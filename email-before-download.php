@@ -398,11 +398,11 @@ vertical-align:top;
         <tr valign="top" class="alert"><td colspan="2"><p class="alert">#8 through #9 only apply if you selected "Send Email" or "Both" as the Delivery Format in #1</p></td></tr>
         <tr valign="top">
         <th scope="row"><p>8. Email Template</p></th>
-        <td><textarea cols="40" rows="10" name="email_before_download_email_template">  <?php echo get_option('email_before_download_email_template'); ?> </textarea><br />
+        <td><textarea cols="40" rows="10" name="email_before_download_email_template"><?php echo get_option('email_before_download_email_template'); ?></textarea><br />
 <i>You can use the following placeholders: [requesting_name], [file_url] and [file_name]. </i><br />
 <i>So if you, for example, don't provide the [file_url] placeholder, the
 <br />user will not receive any link. Here is an example of the template:<br /><br />
-<b> Hello [requesting_name], <br />
+<b>Hello [requesting_name], <br />
 
 Here is the download for &lt;a href="[file_url]"&gt;[file_name]&lt;/a&gt; that you requested.<br />
 
