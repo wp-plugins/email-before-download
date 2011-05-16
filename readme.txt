@@ -77,14 +77,24 @@ WordPress allows direct access to files in your upload directories using a direc
 5. User will be required to enter valid data in accordance with Contact Form 7 validation rules.
 6. Upon submission, user will either see a direct link below the form.  (Note: there is also an option to only email the link to the user.)
 
+
 == Changelog ==
+
+
+= 2.0 =
+* Support multiple file selection (within shortcut code, use comma-separated list of download IDs: download_id="1,2,3")
+* Add more information in the download history EXPORT .csv file
+* Added support for Download Monitor format code for the inline link that is displayed (within shortcut code, specify the format code: format="1")
+* Allow overriding the default settings with the shortcode (i.e. within shortcode, use delivered_as="Inline Link" even though the general setting in admin panel is setup for "Both" -- options are "Inline Link", "Send Email", "Both")
+* Updates to avoid potential conflicts with other plugins
+* Added ability to customize subject line when emailing file download
 
 = 1.0 =
 * Added ability to export log in CSV format from admin settings page.
 * Added ability to mask download file's URL if cURL is enabled.
 * Added ability to expire the download link after a given timeframe.
 * In addition to emailing a link to the file, added ability to email the file as an attachment.
-* Added ability to download files outside of Download Monitor.
+* Added ability to download files outside of Download Monitor (within shortcode, use file="http://mydomain.com/file.pdf" -- no need to include download_id="X" in this case).
 
 = 0.5 =
 * First release.

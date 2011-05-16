@@ -17,16 +17,16 @@ contract, strict liability, or tort(including negligence or otherwise) arising i
 this software, even if advised of the possibility of such damage.
 
 For full license details see license.txt
-============================================================================================================
-*/
+============================================================================================================ /
 /*
-* Init database tables
+ * Init database tables
 */
 
 global $wpdb;
 
    $table_item = $wpdb->prefix . "ebd_item";
    $table_link = $wpdb->prefix . "ebd_link";
+   $table_posted_data = $wpdb->prefix . "ebd_posted_data";
 
 if($wpdb->get_var("SHOW TABLES LIKE '$table_item'") != $table_item) {
 
@@ -49,13 +49,41 @@ if($wpdb->get_var("SHOW TABLES LIKE '$table_link'") != $table_link) {
 			is_downloaded smallint(3) NOT NULL default '0',
 			email VARCHAR(128) NOT NULL,
 			expire_time bigint(11),
-                        uid varchar(255) NOT NULL,
-                        delivered_as varchar(255) NULL,
+			time_requested bigint(11),
+            uid varchar(255) NOT NULL,
+            selected_id BIGINT NOT NULL,
+            delivered_as varchar(255) NULL,
 			UNIQUE KEY id (id)
 			);";
 	$wpdb->query($sql);
 }
 
+//			time_requested bigint(11),
+//ALTER TABLE `wp_ebd_link` ADD `selected_id` VARCHAR( 128 ) NULL AFTER `uid` ;
+if(!$wpdb->get_row("SHOW COLUMNS
+  FROM $table_link
+  LIKE 'selected_id'"))
+ $wpdb->query("ALTER TABLE `$table_link` ADD `selected_id` BIGINT NOT NULL ;");
+//ALTER TABLE `wp_ebd_link` ADD `time_requested` BIGINT NOT NULL ;
+if(!$wpdb->get_row("SHOW COLUMNS
+  FROM $table_link
+  LIKE 'time_requested'"))
+ $wpdb->query("ALTER TABLE `$table_link` ADD `time_requested` BIGINT NOT NULL ;");
+ 
+ if(!$wpdb->get_row("SHOW COLUMNS
+  FROM $table_link
+  LIKE 'is_masked'"))
+ $wpdb->query("ALTER TABLE `$table_link` ADD `is_masked` VARCHAR(4) NULL DEFAULT NULL;");
+ 
+if($wpdb->get_var("SHOW TABLES LIKE '$table_posted_data'") != $table_posted_data) {
+
+	$sql = "CREATE TABLE " . $table_posted_data . " (
+			time_requested bigint(20),
+                        posted_data text(2000) NOT NULL,
+			UNIQUE KEY id (time_requested)
+			);";
+	$wpdb->query($sql);
+}
 //Shortcode function
 function emailreqtag_func($atts) {
  extract(shortcode_atts(array(
@@ -63,33 +91,46 @@ function emailreqtag_func($atts) {
   'contact_form_id' => NULL,
   'title' => NULL,
   'file' => NULL,
+  'format' => NULL,
+  'delivered_as' => NULL,
+  'masked'=>NULL,
+  'attachment'=>NULL,
  ), $atts));
 
   global $wpdb,$wp_dlm_root,$wp_dlm_db,$wp_dlm_db_taxonomies, $def_format, $dlm_url, $downloadurl, $downloadtype, $wp_dlm_db_meta;
 
   $str = '';
-
+  $chekboxes = "";
   //$title = '';
 
   $url = '';
+  $hf = '';
+  $dldArray = array();
   $table_item = $wpdb->prefix . "ebd_item";
   if($download_id != NULL){
+    $ebd_item = $wpdb->get_row( "SELECT * FROM $table_item  WHERE download_id = '$download_id' " );
+    $dldArray = explode(",", $download_id);
+    $title_tmp = '';
+    foreach ($dldArray as $dl_id) {
+      $dl = $wpdb->get_row( "SELECT * FROM $wp_dlm_db  WHERE id = ".$wpdb->escape($dl_id).";" );
+     
 
-    $dl = $wpdb->get_row( "SELECT * FROM $wp_dlm_db  WHERE id = ".$wpdb->escape($download_id).";" );
-
-    $ebd_item = $wpdb->get_row( "SELECT * FROM $table_item  WHERE download_id = ".$wpdb->escape($download_id).";" );
-    $d = new downloadable_file($dl);
-
-    if (!empty($d)) {
-          $date = date("jS M Y", strtotime($d->date));
-          if ($title == NULL || $title == '') $title = $d->title;
-          $url = $d->url;
+      $d = new downloadable_file($dl);
+     
+      if (!empty($d)) {
+            $date = date("jS M Y", strtotime($d->date));
+            if ($title == NULL || $title == '') $title_tmp .= $d->title . '|';
+            $url = $d->url;
+         $chekboxes .= '<br />' . $d->title. ' <input type="checkbox" name="ebd_downloads[]" value="'. $dl_id . '">';
+      }
+      
     }
-
+    if(count($title_tmp) > 0) $title = rtrim($title_tmp, '|');
+//    rtrim($title, '|');
     if (empty($ebd_item)){
       $wpdb->insert( $table_item, array("download_id"=>$download_id, "title"=>$title) );
       $download_id = $wpdb->insert_id;
-      $ebd_item = $wpdb->get_row( "SELECT * FROM $table_item  WHERE download_id = ".$wpdb->escape($download_id).";" );
+      $ebd_item = $wpdb->get_row( "SELECT * FROM $table_item  WHERE id = ".$wpdb->escape($download_id).";" );
     }
     else $download_id = $ebd_item->id;
     //update title if needed
@@ -116,8 +157,26 @@ function emailreqtag_func($atts) {
 
   }
   $contact_form = do_shortcode("[contact-form $contact_form_id \"$title\"]");
+  // add checkboxes if count is more than one
+  if (count($dldArray) > 1){
+      //$chekboxes $chekboxes
+     $contact_form = str_replace("<ebd />", $chekboxes, $contact_form);
+  } 
+  else $contact_form = str_replace("<ebd />", "", $contact_form);
+  
+  if($delivered_as != NULL)
+    $hf .= '<input type="hidden" name="delivered_as" value="' . $delivered_as. '" />';
+    //masked 
+  if($masked != NULL)
+    $hf .= '<input type="hidden" name="masked" value="' . $masked. '" />';
+  
+  if($attachment != NULL)
+    $hf .= '<input type="hidden" name="attachment" value="' . $attachment. '" />';
+  if($format != NULL)
+    $hf .= '<input type="hidden" name="format" value="' . $format. '" />';
+    
 
-  $hf = '<input type="hidden" name="_wpcf7_download_id" value="' . $download_id. '" /></form>';
+  $hf .= '<input type="hidden" name="_wpcf7_download_id" value="' . $download_id. '" /></form>';
 
   $contact_form = str_replace("</form>", $hf, $contact_form);
 
@@ -132,20 +191,51 @@ add_shortcode('emailreq', 'emailreqtag_func');
 add_shortcode('email-download', 'emailreqtag_func');
 
 /*Function that processes contact form 7, generates links, sends emails */
-function process_email_form( $cf7 ) {
-
+function ebd_process_email_form( $cf7 ) {
   if(isset( $_POST['_wpcf7_download_id'] )){
     global $wpdb,$wp_dlm_root,$wp_dlm_db,$wp_dlm_db_taxonomies, $def_format, $dlm_url, $downloadurl, $downloadtype, $wp_dlm_db_meta;
+
+    //table names
     $table_item = $wpdb->prefix . "ebd_item";
     $table_link = $wpdb->prefix . "ebd_link";
-    $ebd_item = $wpdb->get_row( "SELECT * FROM $table_item  WHERE id = ".$wpdb->escape($_POST['_wpcf7_download_id']).";" );
+    $table_posted_data = $wpdb->prefix . "ebd_posted_data";
+    
+    $delivered_as = get_option('email_before_download_send_email');
+    $use_attachments = get_option('email_before_download_attachment');
+    if(isset($_POST['delivered_as'])) $delivered_as = $_POST['delivered_as'];
+    if(isset($_POST['attachment'])) $use_attachments = trim($_POST['attachment']) == 'yes'; 
 
+    //get selected downloads
+    $dIds = $_POST['ebd_downloads'];
+
+    $dl_items = array();
+    $multipleLinks = '';
+    $message_mult = '';
+    $attachments = array();
+    $time_requested = time();
+    $target = '_blank';
+
+    //get all download monitor objects
+    if($dIds)
+      foreach($dIds as $id){
+        $dl_it = $wpdb->get_row( "SELECT * FROM $wp_dlm_db  WHERE id = ".$wpdb->escape($id).";" );
+      
+        $dl_items[] = new downloadable_file($dl_it);
+      }
+    
+    //get edb items: it's common for all
+    $dId = $_POST['_wpcf7_download_id'];
+    $ebd_item = $wpdb->get_row( "SELECT * FROM $table_item  WHERE id = ".$wpdb->escape($dId).";" );
+   
+
+    //get single download, multible are comma separated so the $dl for this will be NULL
     $dl = $wpdb->get_row( "SELECT * FROM $wp_dlm_db  WHERE id = ".$wpdb->escape($ebd_item->download_id).";" );
     $d = new downloadable_file($dl);
 
-    $dId = $_POST['_wpcf7_download_id'];
 
 
+
+    //variable for the title it wll be used only for the single downloads and the email subject
 	$title = '';
 	//echo 'debug: ' . $ebd_item->id . ' ' . $ebd_item->title;
 	//print_r($ebd_item);
@@ -163,7 +253,68 @@ function process_email_form( $cf7 ) {
 		}
 	}
 
-    $url = '';
+   $url = '';
+//titles and urls for multiple
+   $titles = array();
+   $urls = array();
+
+   $innerHtml = '';
+
+  //if checkboxes were selected
+   if(count($dl_items) > 0){
+     foreach($dl_items as $dl_item){
+         //generate unique id for the file (link)
+       $uid = md5(uniqid(rand(), true));
+     
+        //expiration date if needed if it's 0 or NULL the link will never expire
+       $expireAt = 0;
+       if(get_option('email_before_download_expire_time') != NULL && get_option('email_before_download_expire_time') != "0")
+         $expireAt = strtotime(get_option('email_before_download_expire_time'));
+     
+       $link_data = array();
+       $link_data['uid'] = $uid;
+       $link_data['selected_id'] = $dl_item->id;
+       $link_data['expire_time'] = $expireAt;
+       $link_data['time_requested'] = $time_requested;
+       $link_data['email'] = $cf7->posted_data['your-email'];
+       $link_data['item_id'] = $_POST['_wpcf7_download_id'];
+       $link_data['delivered_as'] = $delivered_as;
+       if(isset($_POST['masked'])) $link_data['is_masked'] = $_POST['masked'];
+       $wpdb->insert( $table_link, $link_data );
+     
+       //
+       $url = WP_PLUGIN_URL."/email-before-download/download.php?dl=".$uid;
+       $titles[] = $dl_item->title ;
+       $title = implode($titles, '|');
+       if(isset($_POST['format'])){
+        $link = do_shortcode('[download id="' . $dl_item->id. '" format="' .$_POST['format'].'"]');
+        $innerHtml .= $link .   '<br />';
+       }
+       else
+         $innerHtml .= '<a class="icon-button download-icon" target="' . $target . '" href="' . $url .'"><span class="et-icon"><span>' . $dl_item->title . '</span></span></a><br clear="both" /> <br />' ;
+
+//       if(get_option('email_before_download_send_email') == 'Send Email' || get_option('email_before_download_send_email') == 'Both'){
+//       }
+
+       if($use_attachments){
+         $dirs = wp_upload_dir();
+         $uploadpath = trailingslashit( $dirs['baseurl'] );
+         $absuploadpath = trailingslashit( $dirs['basedir'] );
+         $attachment = NULL;
+         if ( $uploadpath && ( strstr ( $dl_item->filename, $uploadpath ) || strstr ( $dl_item->filename, $absuploadpath )) ) {
+        
+           $file = str_replace( $uploadpath , "" , $dl_item->filename);
+           if(is_file($absuploadpath.$file)){
+             $attachment = $absuploadpath.$file;
+           }
+         }
+         $attachments[] = $attachment;
+       }
+
+     }
+   }
+   // single download for the download monitor file or file lnk
+   else if(!empty($dl) || !empty($ebd_item->file) ){
     //generate unique id for the file (link)
     $uid = md5(uniqid(rand(), true));
 
@@ -171,41 +322,95 @@ function process_email_form( $cf7 ) {
     $expireAt = 0;
     if(get_option('email_before_download_expire_time') != NULL && get_option('email_before_download_expire_time') != "0")
       $expireAt = strtotime(get_option('email_before_download_expire_time'));
-    $link_data = array();
-    $link_data['uid'] = $uid;
-    $link_data['expire_time'] = $expireAt;
-    $link_data['email'] = $cf7->posted_data['your-email'];
-    $link_data['item_id'] = $_POST['_wpcf7_download_id'];
-    $link_data['delivered_as'] = get_option('email_before_download_send_email');
-    $wpdb->insert( $table_link, $link_data );
 
-    //generate url for the link (using rewrite rules might require a little more extra coding)
-    $url = WP_PLUGIN_URL."/email-before-download/download.php?dl=".$uid;
+      $link_data = array();
+      $link_data['uid'] = $uid;
+      $link_data['expire_time'] = $expireAt;
+      $link_data['time_requested'] = $time_requested;
+      $link_data['email'] = $cf7->posted_data['your-email'];
+      $link_data['item_id'] = $_POST['_wpcf7_download_id'];
+      $link_data['delivered_as'] = $delivered_as;
+      if(isset($_POST['masked'])) $link_data['is_masked'] = $_POST['masked'];
+      $wpdb->insert( $table_link, $link_data );
+    
+      if(isset($_POST['format']) && $ebd_item->download_id != NULL){
+        $link = do_shortcode('[download id="' . $ebd_item->download_id. '" format="' .$_POST['format'].'"]');
+        $innerHtml .= $link .   '<br />';
+      }
+      else {
+        $url = WP_PLUGIN_URL."/email-before-download/download.php?dl=".$uid;
+        $innerHtml = '<a class="icon-button download-icon" target="' . $target . '" href="' . $url .'"><span class="et-icon"><span>' . $title . '</span></span></a><br clear="both" /> <br />' ;
+     }
+   }
+   //nothing is selected for the download
+   else {
+   //we don't sent an email and throw an error   
+     $cf7->skip_mail = true;
+     //this message doesn't seem to appear but we leave it for now
+     $cf7->additional_settings = "on_sent_ok: \"document.getElementById('wpm_download_$dId').style.display = 'inline'; document.getElementById('wpm_download_$dId').innerHTML='You should select the files to dowload.'; \"";
+     $id = (int) $_POST['_wpcf7'];
+	 $unit_tag = $_POST['_wpcf7_unit_tag'];
+     
+     $items = array(
+				'mailSent' => false,
+				'into' => '#' . $unit_tag,
+				'captcha' => null );
+                //error message
+				$items['message'] = "Please select at least one of the documents";
+				$on_sent_ok = $cf7->additional_setting( 'on_sent_ok', false );
+				$items['onSentOk'] = $on_sent_ok;
+     $echo = json_encode( $items );
 
-    $cf7->posted_data['your-message'] = 'The downloaded file name: ' . $title;
-    if(strpos($cf7->mail['body'], "[your-message]") === false ){
+	 @header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ) );
+	 echo $echo;
+	 die();
+   }
+   $cf7->posted_data['your-message'] = 'The downloaded file name(s): ' . $title;
+   if(strpos($cf7->mail['body'], "[your-message]") === false ){
       $cf7->posted_data['your-message'] =  $title;
       $cf7->mail['body']  = $cf7->mail['body'] ."\nThe downloaded file name: [your-message]";
 
     }
 
+ 
 
-    $target = '_blank';
     $target = get_option('email_before_download_link_target');
     $html_before = get_option('email_before_download_html_before_link');
     $html_after = get_option('email_before_download_html_after_link');
-    $email_template = get_option('email_before_download_email_template');
+    
+
+    //if multiple files are downloaded ???
     $message = '';
-    if(strlen(trim($email_template)) > 0){
-     $message = str_replace(array('[requesting_name]', '[file_url]', '[file_name]'), array($cf7->posted_data['your-name'], $url, $title), trim($email_template));
+    if(count($dl_items) > 0){
+      $email_template = get_option('email_before_download_email_template_mult');
+      if(strlen(trim($email_template)) > 0){
+       $message = str_replace(array('[requesting_name]', '[file_urls]'), array($cf7->posted_data['your-name'], $innerHtml), trim($email_template));
+      }
+      else  $message = $innerHtml;
     }
-    else  $message = '<a class="icon-button download-icon" target="' . $target . '" href="' . $url .'">' . $title . '</a>';
+    else {
+      $email_template = get_option('email_before_download_email_template');
+      if(strlen(trim($email_template)) > 0){
+        if(isset($_POST['format']) && $ebd_item->download_id != NULL)
+          $message = 'You requested: ' .$innerHtml;
+        else 
+          $message = str_replace(array('[requesting_name]', '[file_url]', '[file_name]'), array($cf7->posted_data['your-name'], $url, $title), trim($email_template));
+      }
+      else  {
+        if(isset($_POST['format']) && $ebd_item->download_id != NULL)
+          $message = 'You requested: ' .$innerHtml;
+        else 
+          $message = '<a class="icon-button download-icon" target="' . $target . '" href="' . $url .'">' . $title . '</a>';
+      }
+    }
+    
     //$title = "Click this link to download this file.";
-    $innerHtml = $html_before . '<a class="icon-button download-icon" target="' . $target . '" href="' . $url .'"><span class="et-icon"><span>' . $title . '</span></span></a><br clear="both" />' . $html_after;
+    $innerHtml = $html_before . $innerHtml . $html_after;
+    
 
-    if(get_option('email_before_download_send_email') == 'Send Email') {
-       $attachments = NULL;
-      if(get_option('email_before_download_attachment')) {
+    if($delivered_as == 'Send Email') {
+      // $attachments = NULL;
+      if($use_attachments && count($dl_items) == 0) {
         $dirs = wp_upload_dir();
         $uploadpath = trailingslashit( $dirs['baseurl'] );
         $absuploadpath = trailingslashit( $dirs['basedir'] );
@@ -219,13 +424,19 @@ function process_email_form( $cf7 ) {
         }
         $attachments = array($attachment);
       }
-
-      @wp_mail( $cf7->posted_data['your-email'], 'Requested URL for the file: '. $title , $message, "Content-Type: text/html\n", $attachments);
-      $cf7->additional_settings = "on_sent_ok: \"document.getElementById('wpm_download_$dId').style.display = 'inline'; document.getElementById('wpm_download_$dId').innerHTML='The link to the file has been emailed to you.'; \"";
+      if(count($attachments) == 0) $attachments = NULL;
+      $email_subject = get_option('email_before_download_subject');
+      if(strlen(trim($email_subject)) > 0){
+      	$email_subject = str_replace('[files]', $title, $email_subject);
+      }
+      else $email_subject = 'Requested URL for the file(s): '. $title;
+      //email_before_download_subject
+      @wp_mail( $cf7->posted_data['your-email'], $email_subject , $message, "Content-Type: text/html\n", $attachments);
+      $cf7->additional_settings = "on_sent_ok: \"document.getElementById('wpm_download_$dId').style.display = 'inline'; document.getElementById('wpm_download_$dId').innerHTML='The link to the file(s) has been emailed to you.'; \"";
     }
-    else if (get_option('email_before_download_send_email') == 'Both'){
-      $attachments = NULL;
-      if(get_option('email_before_download_attachment')) {
+    else if ($delivered_as == 'Both'){
+      //$attachments = NULL;
+      if($use_attachments && count($dl_items) == 0) {
         $dirs = wp_upload_dir();
         $uploadpath = trailingslashit( $dirs['baseurl'] );
         $absuploadpath = trailingslashit( $dirs['basedir'] );
@@ -239,15 +450,32 @@ function process_email_form( $cf7 ) {
         }
         $attachments = array($attachment);
       }
-
-      @wp_mail( $cf7->posted_data['your-email'], 'Requested URL for the file: '. $title , $message, "Content-Type: text/html\n", $attachments);
+	  if(count($attachments) == 0) $attachments = NULL;
+	  $email_subject = get_option('email_before_download_subject');
+      if(strlen(trim($email_subject)) > 0){
+      	$email_subject = str_replace('[files]', $title, $email_subject);
+      }
+      else $email_subject = 'Requested URL for the file(s): '. $title;
+      @wp_mail( $cf7->posted_data['your-email'], $email_subject , $message, "Content-Type: text/html\n", $attachments);
       $cf7->additional_settings = "on_sent_ok: \"document.getElementById('wpm_download_$dId').style.display = 'inline'; document.getElementById('wpm_download_$dId').innerHTML='$innerHtml'; \"";
     }
-    else $cf7->additional_settings = "on_sent_ok: \"document.getElementById('wpm_download_$dId').style.display = 'inline'; document.getElementById('wpm_download_$dId').innerHTML='$innerHtml'; \"";
+    else{ 
+      $cf7->additional_settings = "on_sent_ok: \"document.getElementById('wpm_download_$dId').style.display = 'inline'; document.getElementById('wpm_download_$dId').innerHTML='$innerHtml'; \"";
+    }
+    // save the extra form information into the xml
+     $xml = new SimpleXMLElement('<posted_data></posted_data>');
+     foreach ($cf7->posted_data as $key => $value){
+      $xml->addChild($key, $value);
+     }
+     $posted_data = array();
+     $posted_data['time_requested'] = $time_requested;
+     $posted_data['posted_data'] = $xml->asXML();
+     $wpdb->insert( $table_posted_data, $posted_data );
   }
+ 
   return $cf7;
 }
-add_action( 'wpcf7_before_send_mail', 'process_email_form' );
+add_action( 'wpcf7_before_send_mail', 'ebd_process_email_form' );
 
 add_action('admin_menu', 'ebd_plugin_menu');
 
@@ -278,9 +506,11 @@ function register_email_before_download_settings() {
   register_setting( 'email-before-download-group', 'email_before_download_html_after_link' );
   register_setting( 'email-before-download-group', 'email_before_download_send_email' );
   register_setting( 'email-before-download-group', 'email_before_download_email_template' );
+  register_setting( 'email-before-download-group', 'email_before_download_email_template_mult' );
   register_setting( 'email-before-download-group', 'email_before_download_expire_time' );
   register_setting( 'email-before-download-group', 'email_before_download_hide' );
   register_setting( 'email-before-download-group', 'email_before_download_attachment' );
+  register_setting( 'email-before-download-group', 'email_before_download_subject' );
 
 }
 
@@ -397,12 +627,12 @@ vertical-align:top;
 
         <tr valign="top" class="alert"><td colspan="2"><p class="alert">#8 through #9 only apply if you selected "Send Email" or "Both" as the Delivery Format in #1</p></td></tr>
         <tr valign="top">
-        <th scope="row"><p>8. Email Template</p></th>
-        <td><textarea cols="40" rows="10" name="email_before_download_email_template"><?php echo get_option('email_before_download_email_template'); ?></textarea><br />
+        <th scope="row"><p>8. Email Template</p> 8.1  - single url</th>
+        <td><textarea cols="40" rows="10" name="email_before_download_email_template"><?php echo get_option('email_before_download_email_template'); ?> </textarea><br />
 <i>You can use the following placeholders: [requesting_name], [file_url] and [file_name]. </i><br />
 <i>So if you, for example, don't provide the [file_url] placeholder, the
 <br />user will not receive any link. Here is an example of the template:<br /><br />
-<b>Hello [requesting_name], <br />
+<b> Hello [requesting_name], <br />
 
 Here is the download for &lt;a href="[file_url]"&gt;[file_name]&lt;/a&gt; that you requested.<br />
 
@@ -412,6 +642,14 @@ My Company name </b>
 <br /><br /> Note. If you leave this field empty, an email containing only the file URL will be sent.
 
  </i>
+<br />
+        </td>
+        </tr>
+        <tr valign="top">
+        <th scope="row"> 8.2 - multiple urls</th>
+         <td>
+<textarea cols="40" rows="10" name="email_before_download_email_template_mult"><?php echo get_option('email_before_download_email_template_mult'); ?> </textarea><br />
+<i>You can use the following placeholders for multiple urls: [file_urls] </i><br />
         </td>
         </tr>
 
@@ -423,6 +661,17 @@ My Company name </b>
         </p>
         </td>
         </tr>
+        
+        <tr valign="top">
+        <th scope="row"><p>10. Email Subject</p></th>
+        <td><p><input type="test" size="40" name="email_before_download_subject"  value="<?php echo get_option('email_before_download_subject'); ?>"  />
+        <br />
+         <font size="-1"><i> If this field is left blank, the default subject is: "Requested URL for the file(s): &lt; file titles &gt;".</i><br />
+         <i>Note: When populating, you can use the following placeholder if you want the file titles to appear in the email subject: [files]. </i><br /></font>
+        </p>
+        </td>
+        </tr>
+        
     </table>
 
     <p class="submit">
