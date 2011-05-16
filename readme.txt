@@ -38,7 +38,7 @@ Plugin homepage: [http://www.mandsconsulting.com/products/wp-email-before-downlo
 
 == Installation ==
 
-1. Download from [http://wordpress.org/extend/plugins/email-before-download/] (http://bit.ly/dF9AxV)
+1. Download from [http://wordpress.org/extend/plugins/email-before-download/](http://bit.ly/dF9AxV)
 1. Upload the entire email-before-download folder to the /wp-content/plugins/ directory.
 1. Activate the plugin through the "Plugins" menu in WordPress.
 1. Locate the "Email Before Download" menu item in your WordPress Admin panel under "Settings" to configure.
