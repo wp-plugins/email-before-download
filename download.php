@@ -22,6 +22,14 @@
     wp_die( sprintf(__('The link you are trying to access is expired. <br/><br/><a href="%1$s"><strong>← Back to %2$s</strong></a>', "email-before-download"), get_bloginfo('url'), get_bloginfo('name')), __('The link you are trying to access is expired.',"email-before-download"));
   }
 
+  if($ebd_link->selected_id != NULL && $ebd_link->selected_id != 0){
+    $dl = $wpdb->get_row( "SELECT * FROM $wp_dlm_db  WHERE id = ".$wpdb->escape($ebd_link->selected_id).";" );
+    $d = new downloadable_file($dl);
+    $file = $d->filename;
+    $wpdb->update( $table_link, array("is_downloaded"=>1), array("uid"=>$wpdb->escape($dId)) );
+    header("Location: $file");
+    exit(0);
+  }
   $ebd_item = $wpdb->get_row( "SELECT * FROM $table_item  WHERE id = ".$wpdb->escape($ebd_link->item_id).";" );
 
   $file = '';
@@ -37,7 +45,12 @@
 
 //Check if the cUrl functions are available and the url hide option is enabled.
 //If not, just rederect to real file url.
-if (get_option('email_before_download_hide') && function_exists('curl_init')) {
+$is_masked = get_option('email_before_download_hide');
+//is the "hide" option overriden for the individual download
+if($ebd_link->is_masked != NULL)
+  $is_masked = $ebd_link->is_masked == 'yes';
+
+if ($is_masked && function_exists('curl_init')) {
    $curl = curl_init();
    $url = $file;
    $options = array
