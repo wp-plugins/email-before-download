@@ -4,7 +4,7 @@ Donate link: http://www.mandsconsulting.com/
 Tags: email, download
 Requires at least: 3.x
 Tested up to: 3.1
-Stable tag: 2.0
+Stable tag: trunk
 
 Email Before Download presents your users with a form where they submit information, like their name and email address, prior to receiving a download.
 
