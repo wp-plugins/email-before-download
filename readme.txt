@@ -12,7 +12,7 @@ Plugin homepage: http://www.mandsconsulting.com/products/wp-email-before-downloa
 
 == Description ==
 
-Email Before Download presents your users with a form where they submit information, like their name and email address, prior to receiving a download. This plugin integrates with the popular [Contact Form 7](http://bit.ly/dNzVJd) and [Download Monitor](http://bit.ly/ifff4y) plugins, allowing you to create any form you like and manage/monitor your file downloads.  You can also EXPORT a list of users that have downloaded files from the plug-in's settings page.  Prior to installing Email Before Download, please confirm each of these dependent plugins is already installed and working independently.
+Email Before Download presents your users with a form where they submit information, like their name and email address, prior to receiving a download. This plugin integrates with the popular [Contact Form 7](http://bit.ly/dNzVJd) and [Download Monitor](http://bit.ly/ifff4y) plugins, allowing you to create any form you like and manage/monitor your file downloads.  You can also EXPORT a list of users that have downloaded files from the plug-in's settings page.  Prior to installing Email Before Download, please confirm each of the dependent plugins is already installed and working independently.
 
 As an option, you can configure Email Before Download to:
 
@@ -76,13 +76,14 @@ WordPress allows direct access to files in your upload directories using a direc
 4. Upon installation and use of the plugin on a post/page, an end-user will see your contact form.
 5. User will be required to enter valid data in accordance with Contact Form 7 validation rules.
 6. Upon submission, user will either see a direct link below the form.  (Note: there is also an option to only email the link to the user.)
+7. Example Contact Form 7 form code, including tag required to display multiple download selection checkboxes.
 
 
 == Changelog ==
 
 
 = 2.0 =
-* Support multiple file selection (within shortcut code, use comma-separated list of download IDs: download_id="1,2,3")
+* Support multiple download selection (within shortcut code, use comma-separated list of download IDs: download_id="1,2,3" -- within the contact form 7 form used for multiple download selection, ensure you place the tag "<ebd />" where you want to checkbox list to be generated) as shown in [screenshot 7](http://wordpress.org/extend/plugins/email-before-download/screenshots/)
 * Add more information in the download history EXPORT .csv file
 * Added support for Download Monitor format code for the inline link that is displayed (within shortcut code, specify the format code: format="1")
 * Allow overriding the default settings with the shortcode (i.e. within shortcode, use delivered_as="Inline Link" even though the general setting in admin panel is setup for "Both" -- options are "Inline Link", "Send Email", "Both")
