@@ -632,10 +632,20 @@ vertical-align:top;
        </td>
         </tr>
 
-
-        <tr valign="top"><td colspan="2"><p class="alert">#4 through #7 only apply if you selected "Inline Link" or "Both" as the Delivery Format in #1</p></td></tr>
         <tr valign="top">
-        <th scope="row"><p>4. Inline Link Target</p></th>
+        <th scope="row"><p>4. Forbidden Email Domains</p></th>
+        <td><p><textarea cols="40" rows="10" name="email_before_download_forbidden_domains" ><?php echo get_option('email_before_download_forbidden_domains'); ?></textarea>
+        <br />
+         <font size="-1"><i> You can enter here the comma separated list of the forbidden domains </i><br />
+         <i> </i><br /></font>
+        </p>
+        </td>
+        </tr>
+
+
+        <tr valign="top"><td colspan="2"><p class="alert">#5 through #8 only apply if you selected "Inline Link" or "Both" as the Delivery Format in #1</p></td></tr>
+        <tr valign="top">
+        <th scope="row"><p>5. Inline Link Target</p></th>
         <td><p>
         <select name="email_before_download_link_target">
          <option value="_blank" <?php if(get_option('email_before_download_link_target') == '_blank') echo 'selected="selected"'; ?> >_blank</option>
@@ -647,14 +657,14 @@ vertical-align:top;
         </tr>
 
         <tr valign="top">
-        <th scope="row"><p>5. Inline Link Custom CSS</p></th>
+        <th scope="row"><p>6. Inline Link Custom CSS</p></th>
         <td><p><input type="text" size="40" name="email_before_download_wrap_in_div" value="<?php echo get_option('email_before_download_wrap_in_div'); ?>" />
         <br /> <font size="-1"><i>CSS class used to render the div and the link (this is only used if you choose to display the link inline in #5)</i></font>
         </td>
         </tr>
 
         <tr valign="top">
-        <th scope="row"><p>6. HTML Before Inline Link</p></th>
+        <th scope="row"><p>7. HTML Before Inline Link</p></th>
         <td><p><input type="text" name="email_before_download_html_before_link" size="40" value="<?php echo get_option('email_before_download_html_before_link'); ?>" /><br />
          <font size="-1"><i>HTML you want to be added before the link</i></font>
         </p>
@@ -662,16 +672,16 @@ vertical-align:top;
         </tr>
 
         <tr valign="top">
-        <th scope="row"><p>7. HTML After Inline Link</p></th>
+        <th scope="row"><p>8. HTML After Inline Link</p></th>
         <td> <p><input type="text" size="40" name="email_before_download_html_after_link" value="<?php echo get_option('email_before_download_html_after_link'); ?>" />
         <br /><font size="-1"><i>HTML you want to be added after the link</i></font>
         </p>
         </td>
         </tr>
 
-        <tr valign="top" class="alert"><td colspan="2"><p class="alert">#8 through #9 only apply if you selected "Send Email" or "Both" as the Delivery Format in #1</p></td></tr>
+        <tr valign="top" class="alert"><td colspan="2"><p class="alert">#9 through #10 only apply if you selected "Send Email" or "Both" as the Delivery Format in #1</p></td></tr>
         <tr valign="top">
-        <th scope="row"><p>8. Email Template</p> 8.1  - single url</th>
+        <th scope="row"><p>9. Email Template</p> 9.1  - single url</th>
         <td><textarea cols="40" rows="10" name="email_before_download_email_template"><?php echo get_option('email_before_download_email_template'); ?> </textarea><br />
 <i>You can use the following placeholders: [requesting_name], [file_url] and [file_name]. </i><br />
 <i>So if you, for example, don't provide the [file_url] placeholder, the
@@ -690,7 +700,7 @@ My Company name </b>
         </td>
         </tr>
         <tr valign="top">
-        <th scope="row"> 8.2 - multiple urls</th>
+        <th scope="row"> 9.2 - multiple urls</th>
          <td>
 <textarea cols="40" rows="10" name="email_before_download_email_template_mult"><?php echo get_option('email_before_download_email_template_mult'); ?> </textarea><br />
 <i>You can use the following placeholders for multiple urls: [file_urls] </i><br />
@@ -698,20 +708,10 @@ My Company name </b>
         </tr>
 
         <tr valign="top">
-        <th scope="row"><p>9. Attachment</p></th>
+        <th scope="row"><p>10. Attachment</p></th>
         <td><p><input type="checkbox" size="40" name="email_before_download_attachment"  value="1" <?php if(get_option('email_before_download_attachment')) echo 'checked="checked"'; ?> />
         <br />
          <font size="-1"><i>"Attachment" can only be applied to the files uploaded using Download Monitor plugin.</i></font>
-        </p>
-        </td>
-        </tr>
-
-        <tr valign="top">
-        <th scope="row"><p>11. Forbidden Email Domains</p></th>
-        <td><p><textarea cols="40" rows="10" name="email_before_download_forbidden_domains" ><?php echo get_option('email_before_download_forbidden_domains'); ?></textarea>
-        <br />
-         <font size="-1"><i> You can enter here the comma separated list of the forbidden domains </i><br />
-         <i> </i><br /></font>
         </p>
         </td>
         </tr>
