@@ -20,6 +20,8 @@ As an option, you can configure Email Before Download to:
 1. Send the user an email with a link and/or attachment to download your file.
 1. Both #1 and #2
 
+[http://www.mandsconsulting.com/products/wp-email-before-download](Plugin Homepage) | [http://bit.ly/lU7Tdt](Support Forums)
+
 
 Usage
 
@@ -33,8 +35,9 @@ Note: You can see screenshots at [http://wordpress.org/extend/plugins/email-befo
    
 
 
-Plugin homepage: [http://www.mandsconsulting.com/products/wp-email-before-download](http://www.mandsconsulting.com/products/wp-email-before-download)
+Plugin Homepage: [http://www.mandsconsulting.com/products/wp-email-before-download](http://www.mandsconsulting.com/products/wp-email-before-download)
 
+Please use the [http://bit.ly/lU7Tdt](Support Forums) for any questions and issues.  We try to monitor that area the best we can and sometimes other users can help you as well.
 
 == Installation ==
 
