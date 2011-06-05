@@ -20,7 +20,7 @@ As an option, you can configure Email Before Download to:
 1. Send the user an email with a link and/or attachment to download your file.
 1. Both #1 and #2
 
-[Plugin Homepage](http://www.mandsconsulting.com/products/wp-email-before-download) | [Support Forums](http://bit.ly/lU7Tdt)
+[Plugin Homepage with Live Demos and Test Download](http://www.mandsconsulting.com/products/wp-email-before-download) | [Support Forums](http://bit.ly/lU7Tdt)
 
 
 Usage
@@ -35,7 +35,7 @@ Note: You can see screenshots at [http://wordpress.org/extend/plugins/email-befo
    
 
 
-Plugin Homepage: [http://www.mandsconsulting.com/products/wp-email-before-download](http://www.mandsconsulting.com/products/wp-email-before-download)
+Plugin Homepage with Live Demos and Test Download: [http://www.mandsconsulting.com/products/wp-email-before-download](http://www.mandsconsulting.com/products/wp-email-before-download)
 
 Please use the [Support Forums](http://bit.ly/lU7Tdt) for any questions and issues.  We try to monitor that area the best we can and sometimes other users can help you as well.
 
@@ -83,6 +83,9 @@ WordPress allows direct access to files in your upload directories using a direc
 
 
 == Changelog ==
+
+= 2.5.1 =
+* Minor cleanup of admin panel
 
 = 2.5 =
 * Added ability to prevent specific domain names

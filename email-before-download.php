@@ -4,7 +4,7 @@ Plugin Name: Email Before Download
 Plugin URI: http://www.mandsconsulting.com/
 Description: This plugin seamlessly integrates two popular plugins (Contact Form 7 and Download Monitor) to create a simple shortcode for requesting an end-user to fill out a form before providing the download URL.  You can use an existing Contact Form 7 form, where you might typically request contact information like an email address, but the questions in the form are completely up to you.  Once the end user completes the form, you can choose to either show a link directly to the download or send an email with the direct link to the email provided in the contact form.
 Author: M&S Consulting
-Version: 2.5
+Version: 2.5.1
 Author URI: http://www.mandsconsulting.com
 
 ============================================================================================================
@@ -584,7 +584,7 @@ vertical-align:top;
 <p>
 <a href="<?php echo WP_PLUGIN_URL."/email-before-download/export.php"; ?>" target="_blank">Click to export the Email Before Download log as a .CSV file</a><br/>
 <br/>
-<a href="http://www.mandsconsulting.com/products/wp-email-before-download" target="_blank">Plugin Homepage at M&amp;S Consulting</a><br/>
+<a href="http://www.mandsconsulting.com/products/wp-email-before-download" target="_blank">Plugin Homepage at M&amp;S Consulting with Live Demos and Test Download</a><br/>
 <a href="http://bit.ly/dF9AxV" target="_blank">Plugin Homepage at WordPress</a><br/>
 <a href="http://bit.ly/lBo3HN" target="_blank">Plugin Changelog: Current and Past Releases</a><br/>
 <a href="http://bit.ly/lU7Tdt" target="_blank">Plugin Support Forums</a><br/>
@@ -680,7 +680,7 @@ vertical-align:top;
         </td>
         </tr>
 
-        <tr valign="top" class="alert"><td colspan="2"><p class="alert">#9 through #10 only apply if you selected "Send Email" or "Both" as the Delivery Format in #1</p></td></tr>
+        <tr valign="top" class="alert"><td colspan="2"><p class="alert">#9 through #11 only apply if you selected "Send Email" or "Both" as the Delivery Format in #1</p></td></tr>
         <tr valign="top">
         <th scope="row"><p>9. Email Template</p> 9.1  - single url</th>
         <td><textarea cols="40" rows="10" name="email_before_download_email_template"><?php echo get_option('email_before_download_email_template'); ?> </textarea><br />
@@ -716,6 +716,16 @@ My Company name </b>
         </p>
         </td>
         </tr>
+
+		<tr valign="top">
+		<th scope="row"><p>11. Email Subject</p></th>
+		<td><p><input type="test" size="40" name="email_before_download_subject"  value="<?php echo get_option('email_before_download_subject'); ?>"  />
+		<br />
+		 <font size="-1"><i> If this field is left blank, the default subject is: "Requested URL for the file(s): &lt; file titles &gt;".</i><br />
+		 <i>Note: When populating, you can use the following placeholder if you want the file titles to appear in the email subject: [files]. </i><br /></font>
+		</p>
+		</td>
+		</tr>
 
     </table>
 
