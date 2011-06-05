@@ -586,7 +586,8 @@ vertical-align:top;
 <br/>
 <a href="http://www.mandsconsulting.com/products/wp-email-before-download" target="_blank">Plugin Homepage at M&amp;S Consulting</a><br/>
 <a href="http://bit.ly/dF9AxV" target="_blank">Plugin Homepage at WordPress</a><br/>
-<a href="http://bit.ly/lBo3HN" target="_blank">Plugin Changelog: Current and past releases</a><br/>
+<a href="http://bit.ly/lBo3HN" target="_blank">Plugin Changelog: Current and Past Releases</a><br/>
+<a href="http://bit.ly/lU7Tdt" target="_blank">Plugin Support Forums</a><br/>
 </p>
 <form method="post" action="options.php">
     <?php settings_fields( 'email-before-download-group' ); ?>
