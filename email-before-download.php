@@ -4,7 +4,7 @@ Plugin Name: Email Before Download
 Plugin URI: http://www.mandsconsulting.com/
 Description: This plugin seamlessly integrates two popular plugins (Contact Form 7 and Download Monitor) to create a simple shortcode for requesting an end-user to fill out a form before providing the download URL.  You can use an existing Contact Form 7 form, where you might typically request contact information like an email address, but the questions in the form are completely up to you.  Once the end user completes the form, you can choose to either show a link directly to the download or send an email with the direct link to the email provided in the contact form.
 Author: M&S Consulting
-Version: 2.0
+Version: 2.5
 Author URI: http://www.mandsconsulting.com
 
 ============================================================================================================
@@ -190,6 +190,18 @@ function emailreqtag_func($atts) {
 add_shortcode('emailreq', 'emailreqtag_func');
 add_shortcode('email-download', 'emailreqtag_func');
 
+/* Helper functions to check the allowed domains */
+function check_domains($haystack, $domains, $offset=0) {
+    foreach($domains as $needle) {
+      $pos = stripos($haystack, trim($needle), $offset);
+      
+      if ($pos !== false) {
+        return true;
+      }
+    }
+    return false;
+}
+
 /*Function that processes contact form 7, generates links, sends emails */
 function ebd_process_email_form( $cf7 ) {
   if(isset( $_POST['_wpcf7_download_id'] )){
@@ -203,8 +215,35 @@ function ebd_process_email_form( $cf7 ) {
     $delivered_as = get_option('email_before_download_send_email');
     $use_attachments = get_option('email_before_download_attachment');
     if(isset($_POST['delivered_as'])) $delivered_as = $_POST['delivered_as'];
-    if(isset($_POST['attachment'])) $use_attachments = trim($_POST['attachment']) == 'yes';
+    if(isset($_POST['attachment'])) $use_attachments = trim($_POST['attachment']) == 'yes'; 
+    
+    //check if email is allowed
+    
+    $email = $cf7->posted_data['your-email'];
+    //compare email againts not allowed domains.
+    $forbidden_domains = get_option('email_before_download_forbidden_domains');
+    $domains = explode(',', $forbidden_domains);
+    
+    if(check_domains($email, $domains)){
+      $id = (int) $_POST['_wpcf7'];
+	  $unit_tag = $_POST['_wpcf7_unit_tag'];
+     
+      $items = array(
+				'mailSent' => false,
+				'into' => '#' . $unit_tag,
+				'captcha' => null );
+                //error message
+				$items['message'] = "The email that you provided is not allowed. Please provide another one.";
+				$on_sent_ok = $cf7->additional_setting( 'on_sent_ok', false );
+				$items['onSentOk'] = $on_sent_ok;
+      $echo = json_encode( $items );
 
+	  @header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ) );
+	  echo $echo;
+	  die();
+    }
+    
+    
     //get selected downloads
     $dIds = $_POST['ebd_downloads'];
 
@@ -511,6 +550,7 @@ function register_email_before_download_settings() {
   register_setting( 'email-before-download-group', 'email_before_download_hide' );
   register_setting( 'email-before-download-group', 'email_before_download_attachment' );
   register_setting( 'email-before-download-group', 'email_before_download_subject' );
+  register_setting( 'email-before-download-group', 'email_before_download_forbidden_domains' );
 
 }
 
@@ -663,11 +703,11 @@ My Company name </b>
         </tr>
 
         <tr valign="top">
-        <th scope="row"><p>10. Email Subject</p></th>
-        <td><p><input type="test" size="40" name="email_before_download_subject"  value="<?php echo get_option('email_before_download_subject'); ?>"  />
+        <th scope="row"><p>11. Forbidden Email Domains</p></th>
+        <td><p><textarea cols="40" rows="10" name="email_before_download_forbidden_domains" ><?php echo get_option('email_before_download_forbidden_domains'); ?></textarea>
         <br />
-         <font size="-1"><i> If this field is left blank, the default subject is: "Requested URL for the file(s): &lt; file titles &gt;".</i><br />
-         <i>Note: When populating, you can use the following placeholder if you want the file titles to appear in the email subject: [files]. </i><br /></font>
+         <font size="-1"><i> You can enter here the comma separated list of the forbidden domains </i><br />
+         <i> </i><br /></font>
         </p>
         </td>
         </tr>

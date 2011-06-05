@@ -69,6 +69,7 @@ if ($is_masked && function_exists('curl_init')) {
   curl_close ($curl);
 //  $my_headers = http_parse_headers ( $header );
   $my_headers = parse_headers ( $header );
+  header("Content-Disposition: filename=\"" . basename($file) . "\""); 
 
 foreach($my_headers as $key=>$value){
   header("$key: $value");  

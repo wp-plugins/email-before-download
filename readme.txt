@@ -81,6 +81,10 @@ WordPress allows direct access to files in your upload directories using a direc
 
 == Changelog ==
 
+= 2.5 =
+* Added ability to prevent specific domain names
+* Fixed download filename issue for .zip files
+
 
 = 2.0 =
 * Support multiple download selection (within shortcut code, use comma-separated list of download IDs: download_id="1,2,3" -- within the contact form 7 form used for multiple download selection, ensure you place the tag "<ebd />" where you want to checkbox list to be generated) as shown in [screenshot 7](http://wordpress.org/extend/plugins/email-before-download/screenshots/)
