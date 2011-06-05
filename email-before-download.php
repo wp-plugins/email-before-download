@@ -194,7 +194,7 @@ add_shortcode('email-download', 'emailreqtag_func');
 function check_domains($haystack, $domains, $offset=0) {
     foreach($domains as $needle) {
       $pos = stripos($haystack, trim($needle), $offset);
-      
+
       if ($pos !== false) {
         return true;
       }
@@ -215,19 +215,19 @@ function ebd_process_email_form( $cf7 ) {
     $delivered_as = get_option('email_before_download_send_email');
     $use_attachments = get_option('email_before_download_attachment');
     if(isset($_POST['delivered_as'])) $delivered_as = $_POST['delivered_as'];
-    if(isset($_POST['attachment'])) $use_attachments = trim($_POST['attachment']) == 'yes'; 
-    
+    if(isset($_POST['attachment'])) $use_attachments = trim($_POST['attachment']) == 'yes';
+
     //check if email is allowed
-    
+
     $email = $cf7->posted_data['your-email'];
     //compare email againts not allowed domains.
     $forbidden_domains = get_option('email_before_download_forbidden_domains');
     $domains = explode(',', $forbidden_domains);
-    
+
     if(check_domains($email, $domains)){
       $id = (int) $_POST['_wpcf7'];
 	  $unit_tag = $_POST['_wpcf7_unit_tag'];
-     
+
       $items = array(
 				'mailSent' => false,
 				'into' => '#' . $unit_tag,
@@ -242,8 +242,8 @@ function ebd_process_email_form( $cf7 ) {
 	  echo $echo;
 	  die();
     }
-    
-    
+
+
     //get selected downloads
     $dIds = $_POST['ebd_downloads'];
 
@@ -582,7 +582,11 @@ vertical-align:top;
 <div class="wrap">
 <h2>Email Before Download Options</h2>
 <p>
-<a href="<?php echo WP_PLUGIN_URL."/email-before-download/export.php"; ?>" target="_blank">Click this link export the Email Before Download log as csv file</a>
+<a href="<?php echo WP_PLUGIN_URL."/email-before-download/export.php"; ?>" target="_blank">Click to export the Email Before Download log as a .CSV file</a><br/>
+<br/>
+<a href="http://www.mandsconsulting.com/products/wp-email-before-download" target="_blank">Plugin Homepage at M&amp;S Consulting</a><br/>
+<a href="http://bit.ly/dF9AxV" target="_blank">Plugin Homepage at WordPress</a><br/>
+<a href="http://bit.ly/lBo3HN" target="_blank">Plugin Changelog: Current and past releases</a><br/>
 </p>
 <form method="post" action="options.php">
     <?php settings_fields( 'email-before-download-group' ); ?>
