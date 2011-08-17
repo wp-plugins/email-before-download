@@ -68,7 +68,7 @@ if ($is_masked && function_exists('curl_init')) {
 
   curl_close ($curl);
 //  $my_headers = http_parse_headers ( $header );
-  $my_headers = parse_headers ( $header );
+  $my_headers = ebd_parse_headers ( $header );
   header("Content-Disposition: filename=\"" . basename($file) . "\""); 
 
 foreach($my_headers as $key=>$value){
@@ -84,7 +84,7 @@ else {
    header("Location: $file");
 }
 
-    function parse_headers( $header )
+    function ebd_parse_headers( $header )
     {
         $retVal = array();
         $fields = explode("\r\n", preg_replace('/\x0D\x0A[\x09\x20]+/', ' ', $header));

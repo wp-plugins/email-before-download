@@ -4,7 +4,7 @@ Plugin Name: Email Before Download
 Plugin URI: http://www.mandsconsulting.com/
 Description: This plugin seamlessly integrates two popular plugins (Contact Form 7 and Download Monitor) to create a simple shortcode for requesting an end-user to fill out a form before providing the download URL.  You can use an existing Contact Form 7 form, where you might typically request contact information like an email address, but the questions in the form are completely up to you.  Once the end user completes the form, you can choose to either show a link directly to the download or send an email with the direct link to the email provided in the contact form.
 Author: M&S Consulting
-Version: 2.5.1
+Version: 2.6
 Author URI: http://www.mandsconsulting.com
 
 ============================================================================================================
@@ -101,6 +101,7 @@ function emailreqtag_func($atts) {
 
   $str = '';
   $chekboxes = "";
+  $chekboxesL = "";
   //$title = '';
 
   $url = '';
@@ -121,7 +122,8 @@ function emailreqtag_func($atts) {
             $date = date("jS M Y", strtotime($d->date));
             if ($title == NULL || $title == '') $title_tmp .= $d->title . '|';
             $url = $d->url;
-         $chekboxes .= '<br />' . $d->title. ' <input type="checkbox" name="ebd_downloads[]" value="'. $dl_id . '">';
+         $chekboxes .= '<br />' . $d->title. ' <input type="checkbox" name="ebd_downloads[]" value="'. $dl_id . '"/>';
+         $chekboxesL .= '<br /> <input type="checkbox" name="ebd_downloads[]" value="'. $dl_id . '"/> '. $d->title;
       }
 
     }
@@ -161,8 +163,12 @@ function emailreqtag_func($atts) {
   if (count($dldArray) > 1){
       //$chekboxes $chekboxes
      $contact_form = str_replace("<ebd />", $chekboxes, $contact_form);
+     $contact_form = str_replace("<ebd_left />", $chekboxesL, $contact_form);
   }
-  else $contact_form = str_replace("<ebd />", "", $contact_form);
+  else {
+    $contact_form = str_replace("<ebd />", "", $contact_form);
+    $contact_form = str_replace("<ebd_left />", "", $contact_form);
+  }
 
   if($delivered_as != NULL)
     $hf .= '<input type="hidden" name="delivered_as" value="' . $delivered_as. '" />';
@@ -369,6 +375,7 @@ function ebd_process_email_form( $cf7 ) {
       $link_data['email'] = $cf7->posted_data['your-email'];
       $link_data['item_id'] = $_POST['_wpcf7_download_id'];
       $link_data['delivered_as'] = $delivered_as;
+      $link_data['selected_id'] = 0;
       if(isset($_POST['masked'])) $link_data['is_masked'] = $_POST['masked'];
       $wpdb->insert( $table_link, $link_data );
 
@@ -504,7 +511,7 @@ function ebd_process_email_form( $cf7 ) {
     // save the extra form information into the xml
      $xml = new SimpleXMLElement('<posted_data></posted_data>');
      foreach ($cf7->posted_data as $key => $value){
-      $xml->addChild($key, $value);
+      $xml->addChild($key, htmlentities($value));//incode the some chars like '&'
      }
      $posted_data = array();
      $posted_data['time_requested'] = $time_requested;
@@ -581,7 +588,7 @@ vertical-align:top;
 
 <div class="wrap">
 <h2>Email Before Download Options</h2>
-<p>
+<p style="font:14pt Arial;">
 <a href="<?php echo WP_PLUGIN_URL."/email-before-download/export.php"; ?>" target="_blank">Click to export the Email Before Download log as a .CSV file</a><br/>
 <br/>
 <a href="http://www.mandsconsulting.com/products/wp-email-before-download" target="_blank">Plugin Homepage at M&amp;S Consulting with Live Demos and Test Download</a><br/>

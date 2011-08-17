@@ -3,7 +3,7 @@ Contributors: mandsconsulting
 Donate link: http://www.mandsconsulting.com/
 Tags: email, download
 Requires at least: 3.x
-Tested up to: 3.1
+Tested up to: 3.2
 Stable tag: trunk
 
 Email Before Download presents your users with a form where they submit information, like their name and email address, prior to receiving a download.
@@ -84,6 +84,13 @@ WordPress allows direct access to files in your upload directories using a direc
 
 == Changelog ==
 
+= 2.6 =
+* Bigger export link
+* Support for special characters in filenames like "&"
+* Fix for empty page interaction
+* Change of function name to avoid conflict with other plugins
+* Support for left checkboxes on multiple file download form using "&lt;ebd_left /&gt;"
+
 = 2.5.1 =
 * Minor cleanup of admin panel
 
@@ -93,7 +100,7 @@ WordPress allows direct access to files in your upload directories using a direc
 
 
 = 2.0 =
-* Support multiple download selection (within shortcut code, use comma-separated list of download IDs: download_id="1,2,3" -- within the contact form 7 form used for multiple download selection, ensure you place the tag "<ebd />" where you want to checkbox list to be generated) as shown in [screenshot 7](http://wordpress.org/extend/plugins/email-before-download/screenshots/)
+* Support multiple download selection (within shortcut code, use comma-separated list of download IDs: download_id="1,2,3" -- within the contact form 7 form used for multiple download selection, ensure you place the tag "&lt;ebd /&gt;" where you want to checkbox list to be generated) as shown in [screenshot 7](http://wordpress.org/extend/plugins/email-before-download/screenshots/)
 * Add more information in the download history EXPORT .csv file
 * Added support for Download Monitor format code for the inline link that is displayed (within shortcut code, specify the format code: format="1")
 * Allow overriding the default settings with the shortcode (i.e. within shortcode, use delivered_as="Inline Link" even though the general setting in admin panel is setup for "Both" -- options are "Inline Link", "Send Email", "Both")
