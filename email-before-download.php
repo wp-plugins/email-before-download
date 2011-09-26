@@ -4,7 +4,7 @@ Plugin Name: Email Before Download
 Plugin URI: http://www.mandsconsulting.com/
 Description: This plugin seamlessly integrates two popular plugins (Contact Form 7 and Download Monitor) to create a simple shortcode for requesting an end-user to fill out a form before providing the download URL.  You can use an existing Contact Form 7 form, where you might typically request contact information like an email address, but the questions in the form are completely up to you.  Once the end user completes the form, you can choose to either show a link directly to the download or send an email with the direct link to the email provided in the contact form.
 Author: M&S Consulting
-Version: 2.6
+Version: 3.0
 Author URI: http://www.mandsconsulting.com
 
 ============================================================================================================
@@ -75,6 +75,11 @@ if(!$wpdb->get_row("SHOW COLUMNS
   LIKE 'is_masked'"))
  $wpdb->query("ALTER TABLE `$table_link` ADD `is_masked` VARCHAR(4) NULL DEFAULT NULL;");
 
+ if(!$wpdb->get_row("SHOW COLUMNS
+  FROM $table_link
+  LIKE 'is_force_download'"))
+ $wpdb->query("ALTER TABLE `$table_link` ADD `is_force_download` VARCHAR(4) NULL DEFAULT NULL;");
+
 if($wpdb->get_var("SHOW TABLES LIKE '$table_posted_data'") != $table_posted_data) {
 
 	$sql = "CREATE TABLE " . $table_posted_data . " (
@@ -95,6 +100,7 @@ function emailreqtag_func($atts) {
   'delivered_as' => NULL,
   'masked'=>NULL,
   'attachment'=>NULL,
+  'force_download'=>NULL,
  ), $atts));
 
   global $wpdb,$wp_dlm_root,$wp_dlm_db,$wp_dlm_db_taxonomies, $def_format, $dlm_url, $downloadurl, $downloadtype, $wp_dlm_db_meta;
@@ -158,7 +164,7 @@ function emailreqtag_func($atts) {
       $wpdb->update( $table_item, array("title"=>$title), array("id"=>$download_id) );
 
   }
-  $contact_form = do_shortcode("[contact-form $contact_form_id \"$title\"]");
+  $contact_form = do_shortcode("[contact-form id=\"$contact_form_id\" \"$title\"]");
   // add checkboxes if count is more than one
   if (count($dldArray) > 1){
       //$chekboxes $chekboxes
@@ -175,6 +181,9 @@ function emailreqtag_func($atts) {
     //masked
   if($masked != NULL)
     $hf .= '<input type="hidden" name="masked" value="' . $masked. '" />';
+
+  if($force_download != NULL)
+    $hf .= '<input type="hidden" name="force_download" value="' . $force_download . '" />';
 
   if($attachment != NULL)
     $hf .= '<input type="hidden" name="attachment" value="' . $attachment. '" />';
@@ -377,6 +386,7 @@ function ebd_process_email_form( $cf7 ) {
       $link_data['delivered_as'] = $delivered_as;
       $link_data['selected_id'] = 0;
       if(isset($_POST['masked'])) $link_data['is_masked'] = $_POST['masked'];
+      if(isset($_POST['force_download'])) $link_data['is_force_download'] = $_POST['force_download'];
       $wpdb->insert( $table_link, $link_data );
 
       if(isset($_POST['format']) && $ebd_item->download_id != NULL){
@@ -587,15 +597,43 @@ vertical-align:top;
 </style>
 
 <div class="wrap">
-<h2>Email Before Download Options</h2>
-<p style="font:14pt Arial;">
-<a href="<?php echo WP_PLUGIN_URL."/email-before-download/export.php"; ?>" target="_blank">Click to export the Email Before Download log as a .CSV file</a><br/>
+<strong style="font:bold 18pt Arial;">Email Before Download Options</strong><br/>
 <br/>
-<a href="http://www.mandsconsulting.com/products/wp-email-before-download" target="_blank">Plugin Homepage at M&amp;S Consulting with Live Demos and Test Download</a><br/>
-<a href="http://bit.ly/dF9AxV" target="_blank">Plugin Homepage at WordPress</a><br/>
-<a href="http://bit.ly/lBo3HN" target="_blank">Plugin Changelog: Current and Past Releases</a><br/>
-<a href="http://bit.ly/lU7Tdt" target="_blank">Plugin Support Forums</a><br/>
-</p>
+<strong style="font:bold 14pt Arial;">Email Before Download Log:</strong><br/>
+<a style="font:bold 12pt Arial;" href="<?php echo WP_PLUGIN_URL."/email-before-download/export.php"; ?>" target="_blank">Click to export the Email Before Download log as a .CSV file</a><br/>
+<br/>
+<a href="#" target="_blank" onclick="clearLog();return false;">Click to clear Email Before Download log</a><br/><em>Note: This will permanently delete all Email Before Download log entries from the database.</em><br/>
+<script type="text/javascript">
+function clearLog(){
+	var answer = confirm ("Are you sure you want to clear the log?")
+	if(answer){
+		jQuery.ajax({
+			  type: "POST",
+			  url: "<?php echo WP_PLUGIN_URL."/email-before-download/clearlog.php"; ?>",
+			  success: function(data){
+			    alert(data);
+			  }
+		});
+		return false;
+	}
+	//else
+	//alert ("NO");
+
+}
+</script>
+<br/>
+<strong style="font:bold 14pt Arial;">Support Links:</strong><br/>
+
+<ul>
+<li><a href="http://www.mandsconsulting.com/products/wp-email-before-download" target="_blank">Plugin Homepage at M&amp;S Consulting with Live Demos and Test Download</a></li>
+<li><a href="http://bit.ly/dF9AxV" target="_blank">Plugin Homepage at WordPress</a></li>
+<li><a href="http://bit.ly/lBo3HN" target="_blank">Plugin Changelog: Current and Past Releases</a></li>
+<li><a href="http://bit.ly/lU7Tdt" target="_blank">Plugin Support Forums</a></li>
+</ul>
+
+<br/>
+<strong style="font:bold 14pt Arial;">Configuration Options:</strong><br/>
+<br/>
 <form method="post" action="options.php">
     <?php settings_fields( 'email-before-download-group' ); ?>
     <table class="optiontable ebd">

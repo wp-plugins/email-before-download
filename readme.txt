@@ -84,6 +84,13 @@ WordPress allows direct access to files in your upload directories using a direc
 
 == Changelog ==
 
+= 3.0 =
+* Modification to help support for COntact Form 7 v3.0+
+* Added ability to force a file download using attribute in shortcode [email-download download_id="X" contact_form_id="Y" force-download="true"]; Download Monitor Force Download Option is recommended for files stored in Download Monitor
+* Added option in admin panel to clear Email Before Download log entries
+* Minor fomatting updates to admin panel
+* Updates to allow Download Monitor to track clicks/downloads of files accessed using various scenarios of the Email Before Download plugin; Download Monitor still does not track clicks when using the masked URL option of Email Before Download, but the Email Before Download log does track these
+
 = 2.6 =
 * Bigger export link
 * Support for special characters in filenames like "&"
