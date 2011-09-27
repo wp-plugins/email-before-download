@@ -84,8 +84,11 @@ WordPress allows direct access to files in your upload directories using a direc
 
 == Changelog ==
 
+= 3.1 =
+* New modification to help support for Contact Form 7 v3.0+
+
 = 3.0 =
-* Modification to help support for COntact Form 7 v3.0+
+* Modification to help support for Contact Form 7 v3.0+
 * Added ability to force a file download using attribute in shortcode [email-download download_id="X" contact_form_id="Y" force-download="true"]; Download Monitor Force Download Option is recommended for files stored in Download Monitor
 * Added option in admin panel to clear Email Before Download log entries
 * Minor fomatting updates to admin panel
