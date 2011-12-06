@@ -4,7 +4,7 @@ Plugin Name: Email Before Download
 Plugin URI: http://www.mandsconsulting.com/
 Description: This plugin seamlessly integrates two popular plugins (Contact Form 7 and Download Monitor) to create a simple shortcode for requesting an end-user to fill out a form before providing the download URL.  You can use an existing Contact Form 7 form, where you might typically request contact information like an email address, but the questions in the form are completely up to you.  Once the end user completes the form, you can choose to either show a link directly to the download or send an email with the direct link to the email provided in the contact form.
 Author: M&S Consulting
-Version: 3.1
+Version: 3.1.5
 Author URI: http://www.mandsconsulting.com
 
 ============================================================================================================
@@ -101,6 +101,8 @@ function emailreqtag_func($atts) {
   'masked'=>NULL,
   'attachment'=>NULL,
   'force_download'=>NULL,
+  'email_from'=>NULL,
+
  ), $atts));
 
   global $wpdb,$wp_dlm_root,$wp_dlm_db,$wp_dlm_db_taxonomies, $def_format, $dlm_url, $downloadurl, $downloadtype, $wp_dlm_db_meta;
@@ -192,6 +194,8 @@ function emailreqtag_func($atts) {
     $hf .= '<input type="hidden" name="attachment" value="' . $attachment. '" />';
   if($format != NULL)
     $hf .= '<input type="hidden" name="format" value="' . $format. '" />';
+  if($email_from != NULL)
+    $hf .= '<input type="hidden" name="email_from" value="' . urlencode($email_from) . '" />';
 
 
   $hf .= '<input type="hidden" name="_wpcf7_download_id" value="' . $download_id. '" /></form>';
@@ -231,6 +235,14 @@ function ebd_process_email_form( $cf7 ) {
     $table_posted_data = $wpdb->prefix . "ebd_posted_data";
 
     $delivered_as = get_option('email_before_download_send_email');
+    $emailFrom = get_option('email_before_download_email_from');
+    if (isset($_POST['email_from'])){
+      $emailFrom = htmlspecialchars_decode(urldecode($_POST['email_from']));;
+    }
+
+    if (strlen($emailFrom) > 0 )
+      $emailFrom = 'From: '. $emailFrom . "\r\n";
+
     $use_attachments = get_option('email_before_download_attachment');
     if(isset($_POST['delivered_as'])) $delivered_as = $_POST['delivered_as'];
     if(isset($_POST['attachment'])) $use_attachments = trim($_POST['attachment']) == 'yes';
@@ -490,8 +502,8 @@ function ebd_process_email_form( $cf7 ) {
       }
       else $email_subject = 'Requested URL for the file(s): '. $title;
       //email_before_download_subject
-      @wp_mail( $cf7->posted_data['your-email'], $email_subject , $message, "Content-Type: text/html\n", $attachments);
-      $cf7->additional_settings = "on_sent_ok: \"document.getElementById('wpm_download_$dId').style.display = 'inline'; document.getElementById('wpm_download_$dId').innerHTML='The link to the file(s) has been emailed to you.'; \"";
+      @wp_mail( $cf7->posted_data['your-email'], $email_subject , $message, $emailFrom . "Content-Type: text/html\n", $attachments);
+      $cf7->additional_settings .= "\n". "on_sent_ok: \"document.getElementById('wpm_download_$dId').style.display = 'inline'; document.getElementById('wpm_download_$dId').innerHTML='The link to the file(s) has been emailed to you.'; \"";
     }
     else if ($delivered_as == 'Both'){
       //$attachments = NULL;
@@ -515,11 +527,11 @@ function ebd_process_email_form( $cf7 ) {
       	$email_subject = str_replace('[files]', $title, $email_subject);
       }
       else $email_subject = 'Requested URL for the file(s): '. $title;
-      @wp_mail( $cf7->posted_data['your-email'], $email_subject , $message, "Content-Type: text/html\n", $attachments);
-      $cf7->additional_settings = "on_sent_ok: \"document.getElementById('wpm_download_$dId').style.display = 'inline'; document.getElementById('wpm_download_$dId').innerHTML='$innerHtml'; \"";
+      @wp_mail( $cf7->posted_data['your-email'], $email_subject , $message, $emailFrom . "Content-Type: text/html\n", $attachments);
+      $cf7->additional_settings .= "\n". "on_sent_ok: \"document.getElementById('wpm_download_$dId').style.display = 'inline'; document.getElementById('wpm_download_$dId').innerHTML='$innerHtml'; \"";
     }
     else{
-      $cf7->additional_settings = "on_sent_ok: \"document.getElementById('wpm_download_$dId').style.display = 'inline'; document.getElementById('wpm_download_$dId').innerHTML='$innerHtml'; \"";
+      $cf7->additional_settings .= "\n". "on_sent_ok: \"document.getElementById('wpm_download_$dId').style.display = 'inline'; document.getElementById('wpm_download_$dId').innerHTML='$innerHtml'; \"";
     }
     // save the extra form information into the xml
      $xml = new SimpleXMLElement('<posted_data></posted_data>');
@@ -571,6 +583,8 @@ function register_email_before_download_settings() {
   register_setting( 'email-before-download-group', 'email_before_download_attachment' );
   register_setting( 'email-before-download-group', 'email_before_download_subject' );
   register_setting( 'email-before-download-group', 'email_before_download_forbidden_domains' );
+  register_setting( 'email-before-download-group', 'email_before_download_email_from' );
+
 
 }
 
@@ -774,8 +788,16 @@ My Company name </b>
 		</p>
 		</td>
 		</tr>
-
-    </table>
+		<!--<tr valign="top">
+		<th scope="row"><p>12. Email From</p></th>
+		<td><p><input type="test" size="40" name="email_before_download_email_from"  value="<?php //echo get_option('email_before_download_email_from'); ?>"  />
+		<br />
+		 <font size="-1"><i> If this field is left blank, the default wordpress email will be used. Use the following format:My Name &lt;myname@mydomain.com&gt;".</i><br />
+		  </i><br /></font>
+		</p>
+		</td>
+		</tr>
+    --></table>
 
     <p class="submit">
     <input type="submit" class="button-primary" value="<?php _e('Save Changes') ?>" />
