@@ -87,6 +87,10 @@ WordPress allows direct access to files in your upload directories using a direc
 = 3.1.6 =
 * Minor fix for various multi-file issues and logging
 
+= 3.1.5 =
+* fixed event handling
+* stubbed email_from, though it is not active
+
 = 3.1 =
 * New modification to help support for Contact Form 7 v3.0+
 
