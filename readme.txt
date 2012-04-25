@@ -84,6 +84,9 @@ WordPress allows direct access to files in your upload directories using a direc
 
 == Changelog ==
 
+= 3.1.7 =
+* Default multiple file downloads to pre-selected (checked) by default
+
 = 3.1.6 =
 * Minor fix for various multi-file issues and logging
 
