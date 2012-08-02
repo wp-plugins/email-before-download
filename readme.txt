@@ -84,6 +84,13 @@ WordPress allows direct access to files in your upload directories using a direc
 
 == Changelog ==
 
+= 3.2 =
+* Fixed bug related to logging multiple downloads correctly
+* Added field to CSV export
+* Added PayPal button in Admin Panel
+* Added character encoding in case it helps to support languages other than English
+
+
 = 3.1.7 =
 * Default multiple file downloads to pre-selected (checked) by default
 

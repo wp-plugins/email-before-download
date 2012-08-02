@@ -4,7 +4,7 @@ Plugin Name: Email Before Download
 Plugin URI: http://www.mandsconsulting.com/
 Description: This plugin seamlessly integrates two popular plugins (Contact Form 7 and Download Monitor) to create a simple shortcode for requesting an end-user to fill out a form before providing the download URL.  You can use an existing Contact Form 7 form, where you might typically request contact information like an email address, but the questions in the form are completely up to you.  Once the end user completes the form, you can choose to either show a link directly to the download or send an email with the direct link to the email provided in the contact form.
 Author: M&S Consulting
-Version: 3.1.7
+Version: 3.2
 Author URI: http://www.mandsconsulting.com
 
 ============================================================================================================
@@ -117,7 +117,7 @@ function emailreqtag_func($atts) {
   $dldArray = array();
   $table_item = $wpdb->prefix . "ebd_item";
   if($download_id != NULL){
-    $ebd_item = $wpdb->get_row( "SELECT * FROM $table_item  WHERE download_id = ".$wpdb->escape($download_id).";" );
+    $ebd_item = $wpdb->get_row( "SELECT * FROM $table_item  WHERE download_id = '".$wpdb->escape($download_id)."';" );
     $dldArray = explode(",", $download_id);
     $title_tmp = '';
     foreach ($dldArray as $dl_id) {
@@ -136,7 +136,7 @@ function emailreqtag_func($atts) {
 
     }
     if(count($title_tmp) > 0) $title = rtrim($title_tmp, '|');
-//    rtrim($title, '|');
+
     if (empty($ebd_item)){
       $wpdb->insert( $table_item, array("download_id"=>$download_id, "title"=>$title) );
       $download_id = $wpdb->insert_id;
@@ -538,7 +538,7 @@ function ebd_process_email_form( $cf7 ) {
      foreach ($cf7->posted_data as $key => $value){
       if (is_array($value))
         $value = implode(',', $value);
-      $xml->addChild($key, htmlentities($value));//incode the some chars like '&'
+      $xml->addChild($key, htmlentities($value, ENT_QUOTES,'utf-8'));//encode some chars like '&'
      }
      $posted_data = array();
      $posted_data['time_requested'] = $time_requested;
@@ -650,6 +650,12 @@ function clearLog(){
 <li><a href="http://bit.ly/lU7Tdt" target="_blank">Plugin Support Forums</a></li>
 </ul>
 
+<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
+<input type="hidden" name="cmd" value="_s-xclick" />
+<input type="hidden" name="hosted_button_id" value="47FLSBA363KAU" />
+<input type="image" name="submit" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" alt="PayPal - The safer, easier way to pay online!" />
+<img src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" alt="" width="1" height="1" border="0" />
+</form>
 <br/>
 <strong style="font:bold 14pt Arial;">Configuration Options:</strong><br/>
 <br/>

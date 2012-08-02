@@ -24,6 +24,7 @@
   				 l.is_downloaded as is_downloaded,
                  l.email as email,
                  l.delivered_as as delivered_as,
+                 l.selected_id as selected_id,
                  i.file as filename,
                  i.download_id as download_id,
                  d.title as title,
@@ -44,7 +45,7 @@
     order by l.time_requested desc";
   $downloads = $wpdb->get_results($sql);
 
-  $csv = "item_id,email,download_id,filename,item_title,time_requested,posted_data,delivered_as\n";
+  $csv = "item_id,email,download_id,selected_id,filename,item_title,time_requested,posted_data,delivered_as\n";
 
   $clean_csv_search = array("\n","\r","\t", ",");
   $clean_csv_replace = array(" "," "," ", ";");
@@ -54,6 +55,7 @@
       $csv .= $d->item_id . "," .
               $d->email . "," .
               str_replace(',', ';', $d->download_id ). "," .
+              $d->selected_id . "," .
               $d->filename . "," .
               $d->item_title . "," .
               date("Y-m-d G:i", $d->time_requested). "," .
