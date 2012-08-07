@@ -84,6 +84,10 @@ WordPress allows direct access to files in your upload directories using a direc
 
 == Changelog ==
 
+= 3.2.1 =
+* Create table SQL script updated (now the title column has utf8 character set and utf8_unicode_ci collation)
+* Added a patch that checks this specific column and alters it if needed
+
 = 3.2 =
 * Fixed bug related to logging multiple downloads correctly
 * Added field to CSV export

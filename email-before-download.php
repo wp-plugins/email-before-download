@@ -4,7 +4,7 @@ Plugin Name: Email Before Download
 Plugin URI: http://www.mandsconsulting.com/
 Description: This plugin seamlessly integrates two popular plugins (Contact Form 7 and Download Monitor) to create a simple shortcode for requesting an end-user to fill out a form before providing the download URL.  You can use an existing Contact Form 7 form, where you might typically request contact information like an email address, but the questions in the form are completely up to you.  Once the end user completes the form, you can choose to either show a link directly to the download or send an email with the direct link to the email provided in the contact form.
 Author: M&S Consulting
-Version: 3.2
+Version: 3.2.1
 Author URI: http://www.mandsconsulting.com
 
 ============================================================================================================
@@ -89,6 +89,13 @@ if($wpdb->get_var("SHOW TABLES LIKE '$table_posted_data'") != $table_posted_data
 			);";
 	$wpdb->query($sql);
 }
+//check title field collation
+$show_query = "SHOW FULL COLUMNS FROM `$table_item` LIKE 'title'"; 
+$collation_row = $wpdb->get_row($show_query);
+if($collation_row->Collation != 'utf8_unicode_ci'){
+  $wpdb->query("ALTER TABLE `$table_item` CHANGE `title` `title` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL");
+}
+
 //Shortcode function
 function emailreqtag_func($atts) {
  extract(shortcode_atts(array(
