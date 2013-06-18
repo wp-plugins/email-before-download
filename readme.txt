@@ -3,7 +3,7 @@ Contributors: mandsconsulting
 Donate link: http://www.mandsconsulting.com/
 Tags: email, download
 Requires at least: 3.x
-Tested up to: 3.4.1
+Tested up to: 3.5.1
 Stable tag: trunk
 
 Email Before Download presents your users with a form where they submit information, like their name and email address, prior to receiving a download.
@@ -83,6 +83,9 @@ WordPress allows direct access to files in your upload directories using a direc
 
 
 == Changelog ==
+
+= 3.2.2 =
+* Removed extra spacing in multiple download output
 
 = 3.2.1 =
 * Create table SQL script updated (now the title column has utf8 character set and utf8_unicode_ci collation)
