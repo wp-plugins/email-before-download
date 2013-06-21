@@ -23,6 +23,7 @@
   $sql = "SELECT l.item_id as item_id,
   				 l.is_downloaded as is_downloaded,
                  l.email as email,
+                 p.user_name as user_name,
                  l.delivered_as as delivered_as,
                  l.selected_id as selected_id,
                  i.file as filename,
@@ -45,7 +46,7 @@
     order by l.time_requested desc";
   $downloads = $wpdb->get_results($sql);
 
-  $csv = "item_id,email,download_id,selected_id,filename,item_title,time_requested,posted_data,delivered_as\n";
+  $csv = "item_id,email,user_name,download_id,selected_id,filename,item_title,time_requested,posted_data,delivered_as\n";
 
   $clean_csv_search = array("\n","\r","\t", ",");
   $clean_csv_replace = array(" "," "," ", ";");
@@ -54,6 +55,7 @@
     foreach($downloads as $d){
       $csv .= $d->item_id . "," .
               $d->email . "," .
+              $d->user_name . "," .
               str_replace(',', ';', $d->download_id ). "," .
               $d->selected_id . "," .
               $d->filename . "," .

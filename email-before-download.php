@@ -4,7 +4,7 @@ Plugin Name: Email Before Download
 Plugin URI: http://www.mandsconsulting.com/
 Description: This plugin seamlessly integrates two popular plugins (Contact Form 7 and Download Monitor) to create a simple shortcode for requesting an end-user to fill out a form before providing the download URL.  You can use an existing Contact Form 7 form, where you might typically request contact information like an email address, but the questions in the form are completely up to you.  Once the end user completes the form, you can choose to either show a link directly to the download or send an email with the direct link to the email provided in the contact form.
 Author: M&S Consulting
-Version: 3.2.2
+Version: 3.2.3
 Author URI: http://www.mandsconsulting.com
 
 ============================================================================================================
@@ -84,6 +84,8 @@ if($wpdb->get_var("SHOW TABLES LIKE '$table_posted_data'") != $table_posted_data
 
 	$sql = "CREATE TABLE " . $table_posted_data . " (
 			time_requested bigint(20),
+			email VARCHAR(128) NULL,
+			user_name VARCHAR(128)CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL,
                         posted_data text(2000) NOT NULL,
 			UNIQUE KEY id (time_requested)
 			);";
@@ -95,6 +97,16 @@ $collation_row = $wpdb->get_row($show_query);
 if($collation_row->Collation != 'utf8_unicode_ci'){
   $wpdb->query("ALTER TABLE `$table_item` CHANGE `title` `title` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL");
 }
+ if(!$wpdb->get_row("SHOW COLUMNS
+  FROM $table_posted_data
+  LIKE 'user_name'"))
+ $wpdb->query("ALTER TABLE `$table_posted_data` ADD `user_name` VARCHAR(128)CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;");
+
+ if(!$wpdb->get_row("SHOW COLUMNS
+  FROM $table_posted_data
+  LIKE 'email'"))
+ $wpdb->query("ALTER TABLE `$table_posted_data` ADD `email` VARCHAR(128) NULL DEFAULT NULL;");
+ 
 
 //Shortcode function
 function emailreqtag_func($atts) {
@@ -109,6 +121,7 @@ function emailreqtag_func($atts) {
   'attachment'=>NULL,
   'force_download'=>NULL,
   'email_from'=>NULL,
+  'checked'=>NULL,
 
  ), $atts));
 
@@ -132,13 +145,19 @@ function emailreqtag_func($atts) {
 
 
       $d = new downloadable_file($dl);
+   $checked_state_html = 'checked="true"';
+   $checked_state = get_option('email_before_download_chekboxes_state');
+   if($checked != NULL){
+     $checked_state = $checked;
+   }
+   if($checked_state == 'no') $checked_state_html = '';
 
       if (!empty($d)) {
             $date = date("jS M Y", strtotime($d->date));
             if ($title == NULL || $title == '') $title_tmp .= $d->title . '|';
             $url = $d->url;
-         $chekboxes .= '<br />' . $d->title. ' <input type="checkbox" checked="true" name="ebd_downloads[]" value="'. $dl_id . '"/>';
-         $chekboxesL .= '<br /> <input type="checkbox" checked="true" name="ebd_downloads[]" value="'. $dl_id . '"/> '. $d->title;
+         $chekboxes .= '<br />' . $d->title. ' <input type="checkbox" '.$checked_state_html.' name="ebd_downloads[]" value="'. $dl_id . '"/>';
+         $chekboxesL .= '<br /> <input type="checkbox" '.$checked_state_html.' name="ebd_downloads[]" value="'. $dl_id . '"/> '. $d->title;
       }
 
     }
@@ -550,6 +569,8 @@ function ebd_process_email_form( $cf7 ) {
      $posted_data = array();
      $posted_data['time_requested'] = $time_requested;
      $posted_data['posted_data'] = $xml->asXML();
+     $posted_data['email'] = $cf7->posted_data['your-email'];
+     $posted_data['user_name'] = $cf7->posted_data['your-name'];
      $wpdb->insert( $table_posted_data, $posted_data );
   }
 
@@ -591,6 +612,7 @@ function register_email_before_download_settings() {
   register_setting( 'email-before-download-group', 'email_before_download_hide' );
   register_setting( 'email-before-download-group', 'email_before_download_attachment' );
   register_setting( 'email-before-download-group', 'email_before_download_subject' );
+  register_setting( 'email-before-download-group', 'email_before_download_chekboxes_state' );
   register_setting( 'email-before-download-group', 'email_before_download_forbidden_domains' );
   register_setting( 'email-before-download-group', 'email_before_download_email_from' );
 
@@ -793,9 +815,18 @@ My Company name </b>
         </p>
         </td>
         </tr>
-
+        
+        <tr valign="top">
+        <th scope="row"><p>11. Multiple Checkboxes' Default State</p></th>
+        <td><p><input type="checkbox" size="40" name="email_before_download_chekboxes_state"  value="no" <?php if(get_option('email_before_download_chekboxes_state')) echo 'checked="checked"'; ?> />
+        <br />
+         <font size="-1"><i>Select this if you want the default state of the Multiple Checkboxes to be "not checked"</i></font>
+        </p>
+        </td>
+        </tr>
+        
 		<tr valign="top">
-		<th scope="row"><p>11. Email Subject</p></th>
+		<th scope="row"><p>12. Email Subject</p></th>
 		<td><p><input type="test" size="40" name="email_before_download_subject"  value="<?php echo get_option('email_before_download_subject'); ?>"  />
 		<br />
 		 <font size="-1"><i> If this field is left blank, the default subject is: "Requested URL for the file(s): &lt; file titles &gt;".</i><br />

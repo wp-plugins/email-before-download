@@ -84,6 +84,13 @@ WordPress allows direct access to files in your upload directories using a direc
 
 == Changelog ==
 
+= 3.2.3 =
+* Two new fields added to the plugin: user_name and email
+* CSV export now includes new fields
+* Added checks for the existence of the new fields, adds them if needed
+* In admin settings, added new option that changes Multiple Checkboxes' default state
+* Added new short code attribute that overrides admin settings for Multiple Checkboxes' default state
+
 = 3.2.2 =
 * Removed extra spacing in multiple download output
 
