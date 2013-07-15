@@ -17,6 +17,18 @@
   $table_item = $wpdb->prefix . "ebd_item";
   $table_link = $wpdb->prefix . "ebd_link";
   $ebd_link = $wpdb->get_row( "SELECT * FROM $table_link  WHERE uid = '".$wpdb->escape($dId)."';" );
+  
+  $dld = null;
+   $is_new_dm = false;
+    $old_rep = error_reporting(E_ERROR | E_PARSE);;
+  
+    $pd =  &get_file_data(  WP_PLUGIN_DIR . "/download-monitor/download-monitor.php", array("Version"=>"Version"), 'plugin');
+    if(!($pd['Version'])) {
+    }
+    else $is_new_dm = true;
+
+    $new = error_reporting($old_rep);
+    
   if($ebd_link->expire_time != NULL && $ebd_link->expire_time != 0 && $ebd_link->expire_time < time()){
     @header('Content-Type: ' . get_option('html_type') . '; charset=' . get_option('blog_charset'));
     wp_die( sprintf(__('The link you are trying to access is expired. <br/><br/><a href="%1$s"><strong>← Back to %2$s</strong></a>', "email-before-download"), get_bloginfo('url'), get_bloginfo('name')), __('The link you are trying to access is expired.',"email-before-download"));
@@ -24,11 +36,12 @@
   $is_force_download = $ebd_link->is_force_download == 'yes' || $ebd_link->is_force_download == 'true';
   if($ebd_link->selected_id != NULL && $ebd_link->selected_id != 0){
     $dl = $wpdb->get_row( "SELECT * FROM $wp_dlm_db  WHERE id = ".$wpdb->escape($ebd_link->selected_id).";" );
-
-    $downloads = get_downloads('include='.$ebd_link->selected_id.'');
-
-
-    $file = $downloads[0]->url;
+    $file = '';
+    if(!$is_new_dm){
+      $downloads = get_downloads('include='.$ebd_link->selected_id.'');
+      $file = $downloads[0]->url;
+    }
+    else $file = do_shortcode('[download_data id="'.$ebd_link->selected_id.'" data="download_link"]');
 
     $wpdb->update( $table_link, array("is_downloaded"=>1), array("uid"=>$wpdb->escape($dId)) );
     header("Location: $file");
@@ -49,16 +62,30 @@
    $file = $ebd_item->file;
   }
   if($ebd_item->download_id){
-    $dl = $wpdb->get_row( "SELECT * FROM $wp_dlm_db  WHERE id = ".$wpdb->escape($ebd_item->download_id).";" );
+    if(!$is_new_dm){
+      $dl = $wpdb->get_row( "SELECT * FROM $wp_dlm_db  WHERE id = ".$wpdb->escape($ebd_item->download_id).";" );
 
-    //another way of getting downloads from download monitor
-    $downloads = get_downloads('include='.$ebd_item->download_id.'');
+      //another way of getting downloads from download monitor
+      $downloads = get_downloads('include='.$ebd_item->download_id.'');
 
-    $d = new downloadable_file($dl);
-    $file = $downloads[0]->url;
+      $d = new downloadable_file($dl);
+      $file = $downloads[0]->url;
 
-    //if the link is masked use the real path of the DM file
-    if ($is_masked && function_exists('curl_init')) $file = $d->filename;
+      //if the link is masked use the real path of the DM file
+      if ($is_masked && function_exists('curl_init')) $file = $d->filename;
+    }
+    else{
+      //$file = do_shortcode('[download_data id="'.$ebd_item->download_id.'" data="download_link"]');
+      if ($is_masked && function_exists('curl_init')) {
+         $dld = new DLM_Download($ebd_item->download_id);
+         
+         $file  = $dld->get_file_version()->url;
+         if(!isset($_SERVER['HTTP_RANGE'])){
+           $dld->get_file_version()->increase_download_count();
+         }
+      }
+      else $file = do_shortcode('[download_data id="'.$ebd_item->download_id.'" data="download_link"]');
+     }
   }
   $wpdb->update( $table_link, array("is_downloaded"=>1), array("uid"=>$wpdb->escape($dId)) );
 
@@ -67,6 +94,8 @@
 //If not, just rederect to real file url.
 
 if ($is_masked && function_exists('curl_init')) {
+$filesize = 0;  
+if($dld == null){
    $curl = curl_init();
    $url = $file; 
    $options = array
@@ -84,7 +113,7 @@ if ($is_masked && function_exists('curl_init')) {
 
   curl_close ($curl);
 
-
+  
   $my_headers = ebd_parse_headers ( $header );
 
  
@@ -93,10 +122,60 @@ if ($is_masked && function_exists('curl_init')) {
 	 
   $filesize =   isset($matches[1]) ? $matches[1] : "";
 
-
+$dirs = wp_upload_dir();
+ $uploadpath = trailingslashit( $dirs['baseurl'] );
+ $absuploadpath = trailingslashit( $dirs['basedir'] );
+ 
+ if ( $uploadpath && ( strstr ( $file, $uploadpath ) || strstr ( $file, $absuploadpath )) ) {
+   $file = str_replace( $uploadpath , "" , $file);
+   if(is_file($absuploadpath.$file)){
+     $file = $absuploadpath.$file;
+   }
+   else {
+   //
+     @header('Content-Type: ' . get_option('html_type') . '; charset=' . get_option('blog_charset'));
+     wp_die( sprintf(__('The file you are trying to download is not available. <br/><br/><a href="%1$s"><strong>← Back to %2$s</strong></a>', "email-before-download"), get_bloginfo('url'), get_bloginfo('name')), __('The link you are trying to access is expired.',"email-before-download"));
+   }
+ }
+  
 foreach($my_headers as $key=>$value){
   if($key == 'Location') continue;
   header("$key: $value");  
+
+}
+}
+else{
+  $filesize = $dld->get_file_version()->filesize;
+  $mimetypes =  get_allowed_mime_types();
+
+  $mime_type = 'application/force-download';
+  foreach(get_allowed_mime_types() as $mime => $type) {
+			$mimes = explode( '|', $mime );
+			if (strpos($mime, $dld->get_file_version()->filetype) !== false) {
+				$mime_type = $type;
+				break;
+			}
+	}
+
+$dirs = wp_upload_dir();
+ $uploadpath = trailingslashit( $dirs['baseurl'] );
+ $absuploadpath = trailingslashit( $dirs['basedir'] );
+ 
+ if ( $uploadpath && ( strstr ( $file, $uploadpath ) || strstr ( $file, $absuploadpath )) ) {
+   $file = str_replace( $uploadpath , "" , $file);
+   if(is_file($absuploadpath.$file)){
+     $file = $absuploadpath.$file;
+   }
+   else {
+   //
+     @header('Content-Type: ' . get_option('html_type') . '; charset=' . get_option('blog_charset'));
+     wp_die( sprintf(__('The file you are trying to download is not available. <br/><br/><a href="%1$s"><strong>← Back to %2$s</strong></a>', "email-before-download"), get_bloginfo('url'), get_bloginfo('name')), __('The link you are trying to access is expired.',"email-before-download"));
+   }
+ }
+ 
+	header( "Robots: none" );
+	header( "Content-Type: " . $mime_type );
+	header( "Content-Description: File Transfer" );
 
 }
 //
@@ -118,22 +197,35 @@ foreach($my_headers as $key=>$value){
   else
     header('HTTP/1.0 200 OK');  
  
+  
 
 header('Accept-Ranges: bytes');
-header('Content-Length:'.($end-$begin));
+
 header("Content-Range: bytes $begin-$end/$size"); 
 
+$base_file_name = basename($file);
+if (strstr($_SERVER["HTTP_USER_AGENT"], "MSIE") != false) { 
+  $base_file_name = urlencode(basename($file));
+  $is_force_download = TRUE;
+}
 if($is_force_download)
-  header("Content-Disposition: attachment; filename=\"" . basename($file) . "\"");
-else header("Content-Disposition: filename=\"" . basename($file) . "\"");
-	
+  header("Content-Disposition: attachment; filename=\"" . $base_file_name . "\"");
+else header("Content-Disposition: filename=\"" . $base_file_name . "\"");
+
+header('Content-Length:'.($end-$begin));
+
+
+
 $chunksize = 1 * (1024 * 1024); // how many bytes per chunk
 if ($filesize > $chunksize) {
   $handle = fopen($file, 'rb');
   $buffer = '';
+  // If it's a large file we don't want the script to timeout, so:
+  @set_time_limit(0);
+  fseek($handle,$begin,0);
   while (!feof($handle)) {
-    // If it's a large file we don't want the script to timeout, so:
-    @set_time_limit(0);
+
+    
     $buffer = fread($handle, $chunksize);
     echo $buffer;
     ob_flush();

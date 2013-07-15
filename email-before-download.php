@@ -136,15 +136,34 @@ function emailreqtag_func($atts) {
   $hf = '';
   $dldArray = array();
   $table_item = $wpdb->prefix . "ebd_item";
+  $is_new_dm = false;
   if($download_id != NULL){
     $ebd_item = $wpdb->get_row( "SELECT * FROM $table_item  WHERE download_id = '".$wpdb->escape($download_id)."';" );
+    
+    $old_rep = error_reporting(E_ERROR | E_PARSE);;
+  
+    $pd =  &get_file_data(  WP_PLUGIN_DIR . "/download-monitor/download-monitor.php", array("Version"=>"Version"), 'plugin');
+    if(!($pd['Version'])) {
+    }
+    else $is_new_dm = true;
+    
+    $new = error_reporting($old_rep);
+    
+     
     $dldArray = explode(",", $download_id);
     $title_tmp = '';
     foreach ($dldArray as $dl_id) {
-      $dl = $wpdb->get_row( "SELECT * FROM $wp_dlm_db  WHERE id = ".$wpdb->escape($dl_id).";" );
-
-
-      $d = new downloadable_file($dl);
+      $d = NULL;   
+      if(!$is_new_dm){
+        $dl = $wpdb->get_row( "SELECT * FROM $wp_dlm_db  WHERE id = ".$wpdb->escape($dl_id).";" );
+        $d = new downloadable_file($dl);
+      }
+      else{
+        $d = new stdClass;
+        
+        $d->title = do_shortcode('[download_data id="'.$dl_id.'" data="title"]');
+        
+      }
    $checked_state_html = 'checked="true"';
    $checked_state = get_option('email_before_download_chekboxes_state');
    if($checked != NULL){
@@ -153,9 +172,9 @@ function emailreqtag_func($atts) {
    if($checked_state == 'no') $checked_state_html = '';
 
       if (!empty($d)) {
-            $date = date("jS M Y", strtotime($d->date));
+            //$date = date("jS M Y", strtotime($d->date));
             if ($title == NULL || $title == '') $title_tmp .= $d->title . '|';
-            $url = $d->url;
+            
          $chekboxes .= '<br />' . $d->title. ' <input type="checkbox" '.$checked_state_html.' name="ebd_downloads[]" value="'. $dl_id . '"/>';
          $chekboxesL .= '<br /> <input type="checkbox" '.$checked_state_html.' name="ebd_downloads[]" value="'. $dl_id . '"/> '. $d->title;
       }
@@ -177,7 +196,7 @@ function emailreqtag_func($atts) {
 
   	if ($title == NULL || $title == '') $title = basename($file);
 
-  // return "<br/>" .  '<div id="wpm_download_" ' . $div_class . ' style="inline;"> ' .$file. ' </div> ';
+  
     $ebd_item = $wpdb->get_row( "SELECT * FROM $table_item  WHERE file = '".$wpdb->escape($file)."';" );
 
     if (empty($ebd_item)){
@@ -233,7 +252,8 @@ function emailreqtag_func($atts) {
   if(strlen(trim($wrap_in_div)) > 0 ){
     $div_class = 'class="' .  trim($wrap_in_div) . '"';
   }
-  return "<br/>" . $contact_form .  '<div id="wpm_download_' . $download_id . '" ' . $div_class . ' style="display:none;">  </div> ';
+  
+  return "<br/>" . $contact_form .  '<div id="wpm_download_' . $download_id . '" ' . $div_class . ' style="display:none;">  </div>';
 }
 add_shortcode('emailreq', 'emailreqtag_func');
 add_shortcode('email-download', 'emailreqtag_func');
@@ -255,6 +275,17 @@ function ebd_process_email_form( $cf7 ) {
   if(isset( $_POST['_wpcf7_download_id'] )){
     global $wpdb,$wp_dlm_root,$wp_dlm_db,$wp_dlm_db_taxonomies, $def_format, $dlm_url, $downloadurl, $downloadtype, $wp_dlm_db_meta;
 
+    $is_new_dm = false;
+    $old_rep = error_reporting(E_ERROR | E_PARSE);;
+  
+    $pd =  &get_file_data(  WP_PLUGIN_DIR . "/download-monitor/download-monitor.php", array("Version"=>"Version"), 'plugin');
+    if(!($pd['Version'])) {
+    }
+    else $is_new_dm = true;
+    
+    $new = error_reporting($old_rep);
+    
+    
     //table names
     $table_item = $wpdb->prefix . "ebd_item";
     $table_link = $wpdb->prefix . "ebd_link";
@@ -313,27 +344,49 @@ function ebd_process_email_form( $cf7 ) {
     //get all download monitor objects
     if($dIds)
       foreach($dIds as $id){
-        $dl_it = $wpdb->get_row( "SELECT * FROM $wp_dlm_db  WHERE id = ".$wpdb->escape($id).";" );
+        if(!$is_new_dm){
+          $dl_it = $wpdb->get_row( "SELECT * FROM $wp_dlm_db  WHERE id = ".$wpdb->escape($id).";" );
 
-        $dl_items[] = new downloadable_file($dl_it);
+          $dl_items[] = new downloadable_file($dl_it);
+        }
+        else {
+          $dl_it = new stdClass;
+        
+          //$dl_it->title = do_shortcode('[download_data id="'.$id.'" data="title"]');
+          //$d->url  = do_shortcode('[download_data id="'.$id.'" data="filename"]');
+          $dl_tmp = new DLM_Download($id);
+          $dl_it->title = $dl_tmp->get_the_title();
+          $dl_it->filename  = $dl_tmp->get_file_version()->url;
+          $dl_it->id = $id;
+          $dl_items[] = $dl_it;
+        }
       }
 
     //get edb items: it's common for all
     $dId = $_POST['_wpcf7_download_id'];
+    
     $ebd_item = $wpdb->get_row( "SELECT * FROM $table_item  WHERE id = ".$wpdb->escape($dId).";" );
 
-
+    $d = null;
+    $dl = null; 
     //get single download, multible are comma separated so the $dl for this will be NULL
-    $dl = $wpdb->get_row( "SELECT * FROM $wp_dlm_db  WHERE id = ".$wpdb->escape($ebd_item->download_id).";" );
-    $d = new downloadable_file($dl);
+    if(!$is_new_dm){
+      $dl = $wpdb->get_row( "SELECT * FROM $wp_dlm_db  WHERE id = ".$wpdb->escape($ebd_item->download_id).";" );
+      $d = new downloadable_file($dl);
+    }
+    else{
+      $d = new stdClass;
+      $dl_tmp = new DLM_Download($ebd_item->download_id);
+      $d->title = $dl_tmp->get_the_title();
+      $d->filename  = $dl_tmp->get_file_version()->url;
+    }
 
 
 
 
     //variable for the title it wll be used only for the single downloads and the email subject
 	$title = '';
-	//echo 'debug: ' . $ebd_item->id . ' ' . $ebd_item->title;
-	//print_r($ebd_item);
+
 	$title = $ebd_item->title;
 
 	if($title == NULL || $title == '')
@@ -409,7 +462,7 @@ function ebd_process_email_form( $cf7 ) {
      }
    }
    // single download for the download monitor file or file lnk
-   else if(!empty($dl) || !empty($ebd_item->file) ){
+   else if(!empty($d) || !empty($ebd_item->file) ){
     //generate unique id for the file (link)
     $uid = md5(uniqid(rand(), true));
 
@@ -501,7 +554,7 @@ function ebd_process_email_form( $cf7 ) {
       }
     }
 
-    //$title = "Click this link to download this file.";
+
     $innerHtml = $html_before . $innerHtml . $html_after;
 
 
@@ -779,7 +832,7 @@ function clearLog(){
         </td>
         </tr>
 
-        <tr valign="top" class="alert"><td colspan="2"><p class="alert">#9 through #11 only apply if you selected "Send Email" or "Both" as the Delivery Format in #1</p></td></tr>
+        <tr valign="top" class="alert"><td colspan="2"><p class="alert">#9 through #12 only apply if you selected "Send Email" or "Both" as the Delivery Format in #1</p></td></tr>
         <tr valign="top">
         <th scope="row"><p>9. Email Template</p> 9.1  - single url</th>
         <td><textarea cols="40" rows="10" name="email_before_download_email_template"><?php echo get_option('email_before_download_email_template'); ?> </textarea><br />

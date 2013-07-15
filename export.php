@@ -18,7 +18,23 @@
   $table_item = $wpdb->prefix . "ebd_item";
   $table_link = $wpdb->prefix . "ebd_link";
   $table_posted_data = $wpdb->prefix . "ebd_posted_data";
-
+  $title_sql = "d.title";
+  
+  $is_new_dm = false;
+  
+  $old_rep = error_reporting(E_ERROR | E_PARSE);;
+  
+  $pd =  &get_file_data(  WP_PLUGIN_DIR . "/download-monitor/download-monitor.php", array("Version"=>"Version"), 'plugin');
+  if(!($pd['Version'])) {
+  }
+  else $is_new_dm = true;
+    
+  $new = error_reporting($old_rep);
+    
+  if ($is_new_dm){
+     $wp_dlm_db = $wpdb->prefix . "posts";
+     $title_sql = "d.post_title";
+  }
 
   $sql = "SELECT l.item_id as item_id,
   				 l.is_downloaded as is_downloaded,
@@ -28,7 +44,7 @@
                  l.selected_id as selected_id,
                  i.file as filename,
                  i.download_id as download_id,
-                 d.title as title,
+                 $title_sql as title,
                  p.posted_data as posted_data,
                  i.title as item_title,
                  l.time_requested as time_requested

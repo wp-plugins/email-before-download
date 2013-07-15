@@ -13,7 +13,7 @@ Plugin homepage: http://www.mandsconsulting.com/products/wp-email-before-downloa
 == Description ==
 
 Email Before Download presents your users with a form where they submit information, like their name and email address, prior to receiving a download. This plugin integrates with the popular [Contact Form 7](http://bit.ly/dNzVJd) and [WordPress Download Monitor](http://bit.ly/ifff4y) plugins, allowing you to create any form you like and manage/monitor your file downloads.  You can also EXPORT a list of users that have downloaded files from the plug-in's settings page.  Prior to installing Email Before Download, please confirm each of the dependent plugins is already installed and working independently.
-Short note about [WordPress Download Monitor](http://bit.ly/ifff4y). The author has done a complete rewrite of the plugin so the version you that you download and install from the url provided above is not compatible with previous version and our plugin. If you still want to use Email Before Download, please install WordPress Download Monitor from this url http://downloads.wordpress.org/plugin/download-monitor.3.3.6.zip
+Short note about [WordPress Download Monitor](http://bit.ly/ifff4y). The author has done a complete rewrite of the plugin. But we decided to to keep Email Before Download compatible with the old version of WordPress Download Monitor which can still be downloaded from this url http://downloads.wordpress.org/plugin/download-monitor.3.3.6.zip
 
 
 As an option, you can configure Email Before Download to:
@@ -85,6 +85,10 @@ WordPress allows direct access to files in your upload directories using a direc
 
 
 == Changelog ==
+
+= 3.2.4 =
+* Added support to new version of the Download monitor
+* Modified download logic: If the masked option is turned on and Internet Explorer is detected, download will be forced.
 
 = 3.2.3 =
 * Two new fields added to the plugin: user_name and email
