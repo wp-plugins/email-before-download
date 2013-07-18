@@ -86,6 +86,9 @@ WordPress allows direct access to files in your upload directories using a direc
 
 == Changelog ==
 
+= 3.2.5 =
+* Fixed bug with single quotes that led to javascript error.
+
 = 3.2.4 =
 * Added support to new version of the Download monitor
 * Modified download logic: If the masked option is turned on and Internet Explorer is detected, download will be forced.
