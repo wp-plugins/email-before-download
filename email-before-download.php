@@ -4,7 +4,7 @@ Plugin Name: Email Before Download
 Plugin URI: http://www.mandsconsulting.com/
 Description: This plugin seamlessly integrates two popular plugins (Contact Form 7 and Download Monitor) to create a simple shortcode for requesting an end-user to fill out a form before providing the download URL.  You can use an existing Contact Form 7 form, where you might typically request contact information like an email address, but the questions in the form are completely up to you.  Once the end user completes the form, you can choose to either show a link directly to the download or send an email with the direct link to the email provided in the contact form.
 Author: M&S Consulting
-Version: 3.2.5
+Version: 3.2.6
 Author URI: http://www.mandsconsulting.com
 
 ============================================================================================================
@@ -122,6 +122,8 @@ function emailreqtag_func($atts) {
   'force_download'=>NULL,
   'email_from'=>NULL,
   'checked'=>NULL,
+  'hidden_form'=>NULL,
+  'use_radio'=>NULL
 
  ), $atts));
 
@@ -171,12 +173,26 @@ function emailreqtag_func($atts) {
    }
    if($checked_state == 'no') $checked_state_html = '';
 
+   $checkbox = 'checkbox';
+   
+   $is_radio = get_option('email_before_download_is_radio');
+
+   if($use_radio !=NULL) 
+     $is_radio = $use_radio; 
+   
+   if($is_radio == 'yes'){
+     $checkbox = 'radio';
+     $checked_state_html = '';
+   }
+   
+   
+
       if (!empty($d)) {
             //$date = date("jS M Y", strtotime($d->date));
             if ($title == NULL || $title == '') $title_tmp .= $d->title . '|';
             
-         $chekboxes .= '<br />' . $d->title. ' <input type="checkbox" '.$checked_state_html.' name="ebd_downloads[]" value="'. $dl_id . '"/>';
-         $chekboxesL .= '<br /> <input type="checkbox" '.$checked_state_html.' name="ebd_downloads[]" value="'. $dl_id . '"/> '. $d->title;
+         $chekboxes .= '<br />' . $d->title. ' <input type="'.$checkbox.'" '.$checked_state_html.' name="ebd_downloads[]" value="'. $dl_id . '"/>';
+         $chekboxesL .= '<br /> <input type="'.$checkbox.'" '.$checked_state_html.' name="ebd_downloads[]" value="'. $dl_id . '"/> '. $d->title;
       }
 
     }
@@ -216,10 +232,67 @@ function emailreqtag_func($atts) {
   if(strpos($contact_form, 'contact-form-7 404')!== false) $contact_form = do_shortcode("[contact-form id=\"$contact_form_id\" \"$title\"]");
 
   // add checkboxes if count is more than one
+  $hidden = get_option('email_before_download_hidden_form');
+   if($hidden_form != NULL){
+     $hidden = ($hidden_form == 'yes');
+   }  
+  
   if (count($dldArray) > 1){
       //$chekboxes $chekboxes
-     $contact_form = str_replace("<ebd />", $chekboxes, $contact_form);
-     $contact_form = str_replace("<ebd_left />", $chekboxesL, $contact_form);
+     if($hidden){
+       //$contact_form = str_replace("<ebd />", $chekboxes, $contact_form);
+       $doc = new DOMDocument();
+       $doc->loadXML($contact_form);
+       $form = $doc->getElementsByTagName('form')->item(0);
+       $form_children = array();
+       $domElemsToRemove = array();
+       foreach ($form->childNodes as $child){
+         $domElemsToRemove[] = $child; 
+       }
+       
+       foreach ($domElemsToRemove as $child){
+         $form_children[] = $form->removeChild($child);
+       }
+       
+       $f = $doc->createDocumentFragment();
+       $f->appendXML($chekboxes);
+       $form->appendChild($f);
+       
+       $hidden_css = 'display:none;';
+       $css_option = get_option('email_before_hidden_div_css');
+       
+       if($css_option){
+       $hidden_css = $css_option;
+       }
+       $hidden_div = $doc->createDocumentFragment();
+       $hidden_div->appendXML('<div  id="downloadinputform" style="' . $hidden_css .'" />');
+       $hidden_div = $form->appendChild($hidden_div);
+       
+
+       foreach ($form_children as $child){
+         $hidden_div->appendChild($child);
+       }
+       
+       $contact_form = $doc->saveHTML();
+       $js = '<script>
+       function countChecked() {
+         var n = jQuery( "input:checked[name*=ebd_downloads]" ).length;
+         if(n > 0) jQuery( "#downloadinputform" ).show();
+         else jQuery( "#downloadinputform" ).hide();
+         };
+        jQuery(document).ready(function(){
+         jQuery( "input[name*=ebd_downloads]" ).on( "click", countChecked );
+         countChecked();
+       });
+       
+      </script>';
+       $contact_form .= $js;
+       
+     }
+     else {
+       $contact_form = str_replace("<ebd />", $chekboxes, $contact_form);
+       $contact_form = str_replace("<ebd_left />", $chekboxesL, $contact_form);
+     }
   }
   else {
     $contact_form = str_replace("<ebd />", "", $contact_form);
@@ -581,7 +654,7 @@ function ebd_process_email_form( $cf7 ) {
       }
       else $email_subject = 'Requested URL for the file(s): '. $title;
       //email_before_download_subject
-      @wp_mail( $cf7->posted_data['your-email'], $email_subject , $message, $emailFrom . "Content-Type: text/html\n", $attachments);
+      @wp_mail( $cf7->posted_data['your-email'], $email_subject , stripslashes($message), $emailFrom . "Content-Type: text/html\n", $attachments);
       $cf7->additional_settings .= "\n". "on_sent_ok: \"document.getElementById('wpm_download_$dId').style.display = 'inline'; document.getElementById('wpm_download_$dId').innerHTML='The link to the file(s) has been emailed to you.'; \"";
     }
     else if ($delivered_as == 'Both'){
@@ -668,7 +741,9 @@ function register_email_before_download_settings() {
   register_setting( 'email-before-download-group', 'email_before_download_chekboxes_state' );
   register_setting( 'email-before-download-group', 'email_before_download_forbidden_domains' );
   register_setting( 'email-before-download-group', 'email_before_download_email_from' );
-
+  register_setting( 'email-before-download-group', 'email_before_download_hidden_form' );
+  register_setting( 'email-before-download-group', 'email_before_hidden_div_css' );
+  register_setting( 'email-before-download-group', 'email_before_download_is_radio' );
 
 }
 
@@ -832,7 +907,7 @@ function clearLog(){
         </td>
         </tr>
 
-        <tr valign="top" class="alert"><td colspan="2"><p class="alert">#9 through #12 only apply if you selected "Send Email" or "Both" as the Delivery Format in #1</p></td></tr>
+        <tr valign="top" class="alert"><td colspan="2"><p class="alert">#9 through #11 only apply if you selected "Send Email" or "Both" as the Delivery Format in #1</p></td></tr>
         <tr valign="top">
         <th scope="row"><p>9. Email Template</p> 9.1  - single url</th>
         <td><textarea cols="40" rows="10" name="email_before_download_email_template"><?php echo get_option('email_before_download_email_template'); ?> </textarea><br />
@@ -869,8 +944,20 @@ My Company name </b>
         </td>
         </tr>
         
-        <tr valign="top">
-        <th scope="row"><p>11. Multiple Checkboxes' Default State</p></th>
+        
+		<tr valign="top">
+		<th scope="row"><p>11. Email Subject</p></th>
+		<td><p><input type="test" size="40" name="email_before_download_subject"  value="<?php echo get_option('email_before_download_subject'); ?>"  />
+		<br />
+		 <font size="-1"><i> If this field is left blank, the default subject is: "Requested URL for the file(s): &lt; file titles &gt;".</i><br />
+		 <i>Note: When populating, you can use the following placeholder if you want the file titles to appear in the email subject: [files]. </i><br /></font>
+		</p>
+		</td>
+		</tr>
+        
+        <tr valign="top" class="alert"><td colspan="2"><p class="alert">#12 through #15 only apply if you have multiple urls in you shortcode</p></td></tr>		
+		<tr valign="top">
+        <th scope="row"><p>12. Multiple Checkboxes' Default State</p></th>
         <td><p><input type="checkbox" size="40" name="email_before_download_chekboxes_state"  value="no" <?php if(get_option('email_before_download_chekboxes_state')) echo 'checked="checked"'; ?> />
         <br />
          <font size="-1"><i>Select this if you want the default state of the Multiple Checkboxes to be "not checked"</i></font>
@@ -879,14 +966,33 @@ My Company name </b>
         </tr>
         
 		<tr valign="top">
-		<th scope="row"><p>12. Email Subject</p></th>
-		<td><p><input type="test" size="40" name="email_before_download_subject"  value="<?php echo get_option('email_before_download_subject'); ?>"  />
+        <th scope="row"><p>13. Hidden Form</p></th>
+        <td><p><input type="checkbox" size="40" name="email_before_download_hidden_form"  value="no" <?php if(get_option('email_before_download_hidden_form')) echo 'checked="checked"'; ?> />
+        <br />
+         <font size="-1"><i>Select this if you want the form to be hidden untill user checks one of the Multiple Checkboxes</i></font>
+        </p>
+        </td>
+        </tr>        
+
+<tr valign="top">
+		<th scope="row"><p>14. 'Hidden Form Div Style</p></th>
+		<td><p><input type="test" size="40" name="email_before_hidden_div_css"  value="<?php echo get_option('email_before_hidden_div_css'); ?>"  />
 		<br />
-		 <font size="-1"><i> If this field is left blank, the default subject is: "Requested URL for the file(s): &lt; file titles &gt;".</i><br />
-		 <i>Note: When populating, you can use the following placeholder if you want the file titles to appear in the email subject: [files]. </i><br /></font>
+		 <font size="-1"><i> You can customize the appearance of the hidden form.</i><br />
+		 <i>Default is: display:none; . </i><br /></font>
 		</p>
 		</td>
 		</tr>
+		
+		<tr valign="top">
+        <th scope="row"><p>15. Downloads as Radio Buttons</p></th>
+        <td><p><input type="checkbox" size="40" name="email_before_download_is_radio"  value="yes" <?php if(get_option('email_before_download_is_radio')) echo 'checked="checked"'; ?> />
+        <br />
+         <font size="-1"><i>Select this if you want the Multiple Checkboxes to be turned into Radio buttons</i></font>
+        </p>
+        </td>
+        </tr>
+        		
 		<!--<tr valign="top">
 		<th scope="row"><p>12. Email From</p></th>
 		<td><p><input type="test" size="40" name="email_before_download_email_from"  value="<?php //echo get_option('email_before_download_email_from'); ?>"  />
