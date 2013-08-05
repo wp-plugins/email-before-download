@@ -71,33 +71,22 @@ By default, the user is presented with a link to download their file.  There is 
 
 WordPress allows direct access to files in your upload directories using a direct URL and we do not change those permissions.  We do provide an option to mask the URL to your downloads if you have cURL enabled.
 
-=What are the available shortcode options?=
+= What are the available shortcode options? =
 
 This is the list of all short code attributes that can be used.   Some of them override the global admin settings.
 
-  download_id - either one single download id from Wordpress Download Monitor, or a comma separated list of such ids, eg. '1,2,3'
-
-  contact_form_id - Contact Form 7 ID
-
-  title - this attribute overrides the download title from Download Monitor (works only with single id)
-
-  file  - use to point to external url (don't use masked with this attribute)
-
-  format - used pass format of the url, this option works only with old version of Download Monitor
-
-  delivered_as - possible values: "Send Email", "Both", "Inline Link"
-
-  masked - "yes", "true", "no" 
-
-  attachment  - "yes", "no" 
-
-  force_download - any value that is passed considered as "yes" (we don't have a global menu item for that)
-
-  checked -  "no", any other value is "yes"
-
-  hidden_form - "yes", "no" 
-
-  use_radio - "yes", "no" 
+* download_id - either one single download id from Wordpress Download Monitor, or a comma separated list of such ids, eg. '1,2,3'
+* contact_form_id - Contact Form 7 ID
+* title - this attribute overrides the download title from Download Monitor (works only with single id)
+* file  - use to point to external url (don't use masked with this attribute)
+* format - used pass format of the url, this option works only with old version of Download Monitor
+* delivered_as - possible values: "Send Email", "Both", "Inline Link"
+* masked - "yes", "true", "no" 
+* attachment  - "yes", "no" 
+* force_download - any value that is passed considered as "yes" (we don't have a global menu item for that)
+* checked -  "no", any other value is "yes"
+* hidden_form - "yes", "no" 
+* use_radio - "yes", "no" 
 
 
 == Screenshots ==
