@@ -351,7 +351,6 @@ function xml_character_encode($string, $trans='') {
   foreach ($trans as $k=>$v) {
     
     if(in_array($v, array('&quot;', '&lt;', '&gt;', '&amp;', '&apos;' ))) { continue;}
-    if($v == '&nbsp') echo "value $v";
     $trans2[$v]= "&#".ord($k).";"; 
   }
 
