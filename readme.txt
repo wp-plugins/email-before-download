@@ -102,6 +102,9 @@ This is the list of all short code attributes that can be used.   Some of them o
 
 == Changelog ==
 
+= 3.2.7 =
+* Fixed the issue with loading contact form as XML to DOM parser, when html entities were breaking the validity of XML.
+
 = 3.2.6 =
 * Added new option that allows user to hide contact form until user selects at least one downloads (for multiple download ids )
 * Added option that turns checkboxes to radio buttons (for multiple download ids)

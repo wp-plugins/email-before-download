@@ -4,7 +4,7 @@ Plugin Name: Email Before Download
 Plugin URI: http://www.mandsconsulting.com/
 Description: This plugin seamlessly integrates two popular plugins (Contact Form 7 and Download Monitor) to create a simple shortcode for requesting an end-user to fill out a form before providing the download URL.  You can use an existing Contact Form 7 form, where you might typically request contact information like an email address, but the questions in the form are completely up to you.  Once the end user completes the form, you can choose to either show a link directly to the download or send an email with the direct link to the email provided in the contact form.
 Author: M&S Consulting
-Version: 3.2.6
+Version: 3.2.7
 Author URI: http://www.mandsconsulting.com
 
 ============================================================================================================
@@ -242,7 +242,7 @@ function emailreqtag_func($atts) {
      if($hidden){
        //$contact_form = str_replace("<ebd />", $chekboxes, $contact_form);
        $doc = new DOMDocument();
-       $doc->loadXML($contact_form);
+       $doc->loadXML(xml_character_encode($contact_form));
        $form = $doc->getElementsByTagName('form')->item(0);
        $form_children = array();
        $domElemsToRemove = array();
@@ -342,6 +342,21 @@ function check_domains($haystack, $domains, $offset=0) {
     }
     return false;
 }
+
+/* helper function to translate some html entities to safer xml format */
+function xml_character_encode($string, $trans='') { 
+  $trans = (is_array($trans)) ? $trans : get_html_translation_table(HTML_ENTITIES); 
+  $trans2 =array();
+
+  foreach ($trans as $k=>$v) {
+    
+    if(in_array($v, array('&quot;', '&lt;', '&gt;', '&amp;' ))) { continue;}
+    if($v == '&nbsp') echo "value $v";
+    $trans2[$v]= "&#".ord($k).";"; 
+  }
+
+  return strtr($string, $trans2); 
+} 
 
 /*Function that processes contact form 7, generates links, sends emails */
 function ebd_process_email_form( $cf7 ) {
