@@ -102,6 +102,10 @@ This is the list of all short code attributes that can be used.   Some of them o
 
 == Changelog ==
 
+= 3.2.8 =
+* Fixed the issue with multiple download ids checkboxes when user selects hidden contact form option.
+The checkbox can now be to the left or right, depending on the custom tag (<ebd /> or <ebd left/>)"
+
 = 3.2.7 =
 * Fixed the issue with loading contact form as XML to DOM parser, when html entities were breaking the validity of XML.
 
