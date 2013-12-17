@@ -41,6 +41,8 @@ Plugin Homepage with Live Demos and Test Download: [http://www.mandsconsulting.c
 
 Please use the [Support Forums](http://bit.ly/lU7Tdt) for any questions and issues.  We try to monitor that area the best we can and sometimes other users can help you as well.
 
+If you have a problem or need assistance more rapidly, we  now offer a paid support option, at a price of $10.00. With paid support, you will get a personal response from us within 24 hours of submitting a help request. We will work with you to get your issue to resolution, but can't spend more than 1 hr for the $10. Beyond that, we offer consulting services you can inquire about as well. [Click here](http://www.mandsconsulting.com/vendor-solutions/products/wp-email-before-download) to be taken to our website where you can pay the $10.00 for our paid support and email us at ebd.support@mandsconsulting.com with your PayPal confirmation number and we will get started.
+
 == Installation ==
 
 1. Download from [http://wordpress.org/extend/plugins/email-before-download/](http://bit.ly/dF9AxV)

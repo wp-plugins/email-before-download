@@ -1026,6 +1026,14 @@ My Company name </b>
 
 </form>
 </div>
+Email Before Download started as a plugin we developed for personal in house needs. We realized this could be useful to other WordPress users. At that point, we made the decision to release the plugin for anyone to use. Offering free support has been the only option, but with the increase in popularity our plugin has seen, offering a paid support option will improve our ability to help you as the user.  The WordPress forums will continue to be monitored and updated when we have the chance. If you have a problem or need assistance more rapidly,  now offer that paid support option, at a price of $10.00. With paid support, you will get a personal response from us within 24 hours of submitting a help request. We will work with you to get your issue to resolution, but can.t spend more than 1 hr for the $10. Beyond that, we offer consulting services you can inquire about as well. Click below to pay the $10.00 for our paid support and email us at ebd.support@mandsconsulting.com with your PayPal confirmation number and we will get started.
+<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+<input type="hidden" name="cmd" value="_s-xclick">
+<input type="hidden" name="hosted_button_id" value="FQTJLT67MLLN6">
+<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_buynowCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+</form>
+
 <?php
 
 }
