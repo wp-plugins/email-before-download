@@ -4,7 +4,7 @@ Plugin Name: Email Before Download
 Plugin URI: http://www.mandsconsulting.com/
 Description: This plugin seamlessly integrates two popular plugins (Contact Form 7 and Download Monitor) to create a simple shortcode for requesting an end-user to fill out a form before providing the download URL.  You can use an existing Contact Form 7 form, where you might typically request contact information like an email address, but the questions in the form are completely up to you.  Once the end user completes the form, you can choose to either show a link directly to the download or send an email with the direct link to the email provided in the contact form.
 Author: M&S Consulting
-Version: 3.2.8
+Version: 3.2.9
 Author URI: http://www.mandsconsulting.com
 
 ============================================================================================================
@@ -364,6 +364,14 @@ function ebd_process_email_form( $cf7 ) {
   if(isset( $_POST['_wpcf7_download_id'] )){
     global $wpdb,$wp_dlm_root,$wp_dlm_db,$wp_dlm_db_taxonomies, $def_format, $dlm_url, $downloadurl, $downloadtype, $wp_dlm_db_meta;
 
+    //compatibility check for the Contact Form 7 plugin
+    $is_new_cf7 = true;
+
+    if(isset($cf7->posted_data)){
+    	$is_new_cf7 = false;
+    }
+    else $cf7->posted_data = $_POST;
+
     $is_new_dm = false;
     $old_rep = error_reporting(E_ERROR | E_PARSE);;
   
@@ -586,7 +594,13 @@ function ebd_process_email_form( $cf7 ) {
    //we don't sent an email and throw an error
      $cf7->skip_mail = true;
      //this message doesn't seem to appear but we leave it for now
-     $cf7->additional_settings = "on_sent_ok: \"document.getElementById('wpm_download_$dId').style.display = 'inline'; document.getElementById('wpm_download_$dId').innerHTML='You should select the files to dowload.'; \"";
+      if($is_new_cf7){
+        $additional_settings = $cf7->prop( 'additional_settings' );
+        $additional_settings  .= "on_sent_ok: \"document.getElementById('wpm_download_$dId').style.display = 'inline'; document.getElementById('wpm_download_$dId').innerHTML='You should select the files to dowload.'; \"";
+        $cf7->set_properties( array( 'additional_settings' => $additional_settings ) );
+	  }
+	  else     
+        $cf7->additional_settings .= "on_sent_ok: \"document.getElementById('wpm_download_$dId').style.display = 'inline'; document.getElementById('wpm_download_$dId').innerHTML='You should select the files to dowload.'; \"";
      $id = (int) $_POST['_wpcf7'];
 	 $unit_tag = $_POST['_wpcf7_unit_tag'];
 
@@ -671,7 +685,13 @@ function ebd_process_email_form( $cf7 ) {
       else $email_subject = 'Requested URL for the file(s): '. $title;
       //email_before_download_subject
       @wp_mail( $cf7->posted_data['your-email'], $email_subject , stripslashes($message), $emailFrom . "Content-Type: text/html\n", $attachments);
-      $cf7->additional_settings .= "\n". "on_sent_ok: \"document.getElementById('wpm_download_$dId').style.display = 'inline'; document.getElementById('wpm_download_$dId').innerHTML='The link to the file(s) has been emailed to you.'; \"";
+      if($is_new_cf7){
+        $additional_settings = $cf7->prop( 'additional_settings' );
+        $additional_settings  .= "\n". "on_sent_ok: \"document.getElementById('wpm_download_$dId').style.display = 'inline'; document.getElementById('wpm_download_$dId').innerHTML='The link to the file(s) has been emailed to you.'; \"";
+        $cf7->set_properties( array( 'additional_settings' => $additional_settings ) );
+	  }
+	  else
+        $cf7->additional_settings .= "\n". "on_sent_ok: \"document.getElementById('wpm_download_$dId').style.display = 'inline'; document.getElementById('wpm_download_$dId').innerHTML='The link to the file(s) has been emailed to you.'; \"";
     }
     else if ($delivered_as == 'Both'){
       //$attachments = NULL;
@@ -696,13 +716,26 @@ function ebd_process_email_form( $cf7 ) {
       }
       else $email_subject = 'Requested URL for the file(s): '. $title;
       @wp_mail( $cf7->posted_data['your-email'], $email_subject , $message, $emailFrom . "Content-Type: text/html\n", $attachments);
-      $cf7->additional_settings .= "\n". "on_sent_ok: \"document.getElementById('wpm_download_$dId').style.display = 'inline'; document.getElementById('wpm_download_$dId').innerHTML='$innerHtml'; \"";
+      if($is_new_cf7){
+        $additional_settings = $cf7->prop( 'additional_settings' );
+        $additional_settings  .= "\n". "on_sent_ok: \"document.getElementById('wpm_download_$dId').style.display = 'inline'; document.getElementById('wpm_download_$dId').innerHTML='$innerHtml'; \"";
+        $cf7->set_properties( array( 'additional_settings' => $additional_settings ) );
+	  }
+	  else
+        $cf7->additional_settings .= "\n". "on_sent_ok: \"document.getElementById('wpm_download_$dId').style.display = 'inline'; document.getElementById('wpm_download_$dId').innerHTML='$innerHtml'; \"";
     }
     else{
-      $cf7->additional_settings .= "\n". "on_sent_ok: \"document.getElementById('wpm_download_$dId').style.display = 'inline'; document.getElementById('wpm_download_$dId').innerHTML='$innerHtml'; \"";
+      if($is_new_cf7){
+        $additional_settings = $cf7->prop( 'additional_settings' );
+        $additional_settings .= "\n". "on_sent_ok: \"document.getElementById('wpm_download_$dId').style.display = 'inline'; document.getElementById('wpm_download_$dId').innerHTML='$innerHtml'; \"";
+        $cf7->set_properties( array( 'additional_settings' => $additional_settings ) );
+	  }
+	  else
+	    $cf7->additional_settings .= "\n". "on_sent_ok: \"document.getElementById('wpm_download_$dId').style.display = 'inline'; document.getElementById('wpm_download_$dId').innerHTML='$innerHtml'; \"";
     }
     // save the extra form information into the xml
      $xml = new SimpleXMLElement('<posted_data></posted_data>');
+
      foreach ($cf7->posted_data as $key => $value){
       if (is_array($value))
         $value = implode(',', $value);
