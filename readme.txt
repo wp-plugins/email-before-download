@@ -105,6 +105,9 @@ This is the list of all short code attributes that can be used.   Some of them o
 
 == Changelog ==
 
+=3.3=
+* Updated to be compatible with CF7 Version x.x
+
 = 3.2.9 =
 * Fixed issues related to a recent release of Contact Form 7 version 3.9
 

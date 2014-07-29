@@ -4,7 +4,7 @@ Plugin Name: Email Before Download
 Plugin URI: http://www.mandsconsulting.com/
 Description: This plugin seamlessly integrates two popular plugins (Contact Form 7 and Download Monitor) to create a simple shortcode for requesting an end-user to fill out a form before providing the download URL.  You can use an existing Contact Form 7 form, where you might typically request contact information like an email address, but the questions in the form are completely up to you.  Once the end user completes the form, you can choose to either show a link directly to the download or send an email with the direct link to the email provided in the contact form.
 Author: M&S Consulting
-Version: 3.2.9
+Version: 3.3
 Author URI: http://www.mandsconsulting.com
 
 ============================================================================================================
@@ -619,10 +619,26 @@ function ebd_process_email_form( $cf7 ) {
 	 die();
    }
    $cf7->posted_data['your-message'] = 'The downloaded file name(s): ' . $title;
-   if(strpos($cf7->mail['body'], "[your-message]") === false ){
-      $cf7->posted_data['your-message'] =  $title;
-      $cf7->mail['body']  = $cf7->mail['body'] ."\nThe downloaded file name: [your-message]";
+   if($is_new_cf7){
+     $mail = $cf7->prop( 'mail' );
 
+     if(strpos($mail['body'], "[your-message]") === false ){
+        $mail['body']  = $mail['body'] ."\nThe downloaded file name: $title;";
+        $cf7->posted_data['your-message'] =  $title;
+     }
+     else{
+      	$mbody = $mail['body'];
+      	$mail['body'] = str_replace("[your-message]", 'The downloaded file name(s): ' . $title, $mbody);
+     }
+     $cf7->set_properties( array( 'mail' => $mail ) );
+
+   }
+   else{
+     if(strpos($cf7->mail['body'], "[your-message]") === false ){
+        $cf7->posted_data['your-message'] =  $title;
+        $cf7->mail['body']  = $cf7->mail['body'] ."\nThe downloaded file name: [your-message]";
+
+      }
     }
 
 
