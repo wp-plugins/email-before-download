@@ -4,7 +4,7 @@ Plugin Name: Email Before Download
 Plugin URI: http://www.mandsconsulting.com/
 Description: This plugin seamlessly integrates two popular plugins (Contact Form 7 and Download Monitor) to create a simple shortcode for requesting an end-user to fill out a form before providing the download URL.  You can use an existing Contact Form 7 form, where you might typically request contact information like an email address, but the questions in the form are completely up to you.  Once the end user completes the form, you can choose to either show a link directly to the download or send an email with the direct link to the email provided in the contact form.
 Author: M&S Consulting
-Version: 3.3
+Version: 3.4
 Author URI: http://www.mandsconsulting.com
 
 ============================================================================================================
@@ -140,7 +140,7 @@ function emailreqtag_func($atts) {
   $table_item = $wpdb->prefix . "ebd_item";
   $is_new_dm = false;
   if($download_id != NULL){
-    $ebd_item = $wpdb->get_row( "SELECT * FROM $table_item  WHERE download_id = '".$wpdb->escape($download_id)."';" );
+    $ebd_item = $wpdb->get_row( "SELECT * FROM $table_item  WHERE download_id = '".esc_sql($download_id)."';" );
     
     $old_rep = error_reporting(E_ERROR | E_PARSE);;
   
@@ -157,7 +157,7 @@ function emailreqtag_func($atts) {
     foreach ($dldArray as $dl_id) {
       $d = NULL;   
       if(!$is_new_dm){
-        $dl = $wpdb->get_row( "SELECT * FROM $wp_dlm_db  WHERE id = ".$wpdb->escape($dl_id).";" );
+        $dl = $wpdb->get_row( "SELECT * FROM $wp_dlm_db  WHERE id = ".esc_sql($dl_id).";" );
         $d = new downloadable_file($dl);
       }
       else{
@@ -201,7 +201,7 @@ function emailreqtag_func($atts) {
     if (empty($ebd_item)){
       $wpdb->insert( $table_item, array("download_id"=>$download_id, "title"=>$title) );
       $download_id = $wpdb->insert_id;
-      $ebd_item = $wpdb->get_row( "SELECT * FROM $table_item  WHERE id = ".$wpdb->escape($download_id).";" );
+      $ebd_item = $wpdb->get_row( "SELECT * FROM $table_item  WHERE id = ".esc_sql($download_id).";" );
     }
     else $download_id = $ebd_item->id;
     //update title if needed
@@ -213,12 +213,12 @@ function emailreqtag_func($atts) {
   	if ($title == NULL || $title == '') $title = basename($file);
 
   
-    $ebd_item = $wpdb->get_row( "SELECT * FROM $table_item  WHERE file = '".$wpdb->escape($file)."';" );
+    $ebd_item = $wpdb->get_row( "SELECT * FROM $table_item  WHERE file = '".esc_sql($file)."';" );
 
     if (empty($ebd_item)){
-      $wpdb->insert( $table_item, array("file"=>$wpdb->escape($file), "title"=>$title) );
+      $wpdb->insert( $table_item, array("file"=>esc_sql($file), "title"=>$title) );
       $download_id = $wpdb->insert_id;
-      $ebd_item = $wpdb->get_row( "SELECT * FROM $table_item  WHERE file = '".$wpdb->escape($file)."';" );
+      $ebd_item = $wpdb->get_row( "SELECT * FROM $table_item  WHERE file = '".esc_sql($file)."';" );
 
     }
     else $download_id = $ebd_item->id;
@@ -442,7 +442,7 @@ function ebd_process_email_form( $cf7 ) {
     if($dIds)
       foreach($dIds as $id){
         if(!$is_new_dm){
-          $dl_it = $wpdb->get_row( "SELECT * FROM $wp_dlm_db  WHERE id = ".$wpdb->escape($id).";" );
+          $dl_it = $wpdb->get_row( "SELECT * FROM $wp_dlm_db  WHERE id = ".esc_sql($id).";" );
 
           $dl_items[] = new downloadable_file($dl_it);
         }
@@ -462,13 +462,13 @@ function ebd_process_email_form( $cf7 ) {
     //get edb items: it's common for all
     $dId = $_POST['_wpcf7_download_id'];
     
-    $ebd_item = $wpdb->get_row( "SELECT * FROM $table_item  WHERE id = ".$wpdb->escape($dId).";" );
+    $ebd_item = $wpdb->get_row( "SELECT * FROM $table_item  WHERE id = ".esc_sql($dId).";" );
 
     $d = null;
     $dl = null; 
     //get single download, multible are comma separated so the $dl for this will be NULL
     if(!$is_new_dm){
-      $dl = $wpdb->get_row( "SELECT * FROM $wp_dlm_db  WHERE id = ".$wpdb->escape($ebd_item->download_id).";" );
+      $dl = $wpdb->get_row( "SELECT * FROM $wp_dlm_db  WHERE id = ".esc_sql($ebd_item->download_id).";" );
       $d = new downloadable_file($dl);
     }
     else{

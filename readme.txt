@@ -105,6 +105,9 @@ This is the list of all short code attributes that can be used.   Some of them o
 
 == Changelog ==
 
+=3.4=
+* Updated deprecated WPDB escape functionality to new one.
+
 =3.3=
 * Updated to be compatible with Contact Form Version 3.9
 

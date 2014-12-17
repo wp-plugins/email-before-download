@@ -16,7 +16,7 @@
   global $wpdb;
   $table_item = $wpdb->prefix . "ebd_item";
   $table_link = $wpdb->prefix . "ebd_link";
-  $ebd_link = $wpdb->get_row( "SELECT * FROM $table_link  WHERE uid = '".$wpdb->escape($dId)."';" );
+  $ebd_link = $wpdb->get_row( "SELECT * FROM $table_link  WHERE uid = '".esc_sql($dId)."';" );
   
   $dld = null;
    $is_new_dm = false;
@@ -35,7 +35,7 @@
   }
   $is_force_download = $ebd_link->is_force_download == 'yes' || $ebd_link->is_force_download == 'true';
   if($ebd_link->selected_id != NULL && $ebd_link->selected_id != 0){
-    $dl = $wpdb->get_row( "SELECT * FROM $wp_dlm_db  WHERE id = ".$wpdb->escape($ebd_link->selected_id).";" );
+    $dl = $wpdb->get_row( "SELECT * FROM $wp_dlm_db  WHERE id = ".esc_sql($ebd_link->selected_id).";" );
     $file = '';
     if(!$is_new_dm){
       $downloads = get_downloads('include='.$ebd_link->selected_id.'');
@@ -43,11 +43,11 @@
     }
     else $file = do_shortcode('[download_data id="'.$ebd_link->selected_id.'" data="download_link"]');
 
-    $wpdb->update( $table_link, array("is_downloaded"=>1), array("uid"=>$wpdb->escape($dId)) );
+    $wpdb->update( $table_link, array("is_downloaded"=>1), array("uid"=>esc_sql($dId)) );
     header("Location: $file");
     exit(0);
   }
-  $ebd_item = $wpdb->get_row( "SELECT * FROM $table_item  WHERE id = ".$wpdb->escape($ebd_link->item_id).";" );
+  $ebd_item = $wpdb->get_row( "SELECT * FROM $table_item  WHERE id = ".esc_sql($ebd_link->item_id).";" );
 
   $is_masked = get_option('email_before_download_hide');
   //is the "hide" option overriden for the individual download
@@ -63,7 +63,7 @@
   }
   if($ebd_item->download_id){
     if(!$is_new_dm){
-      $dl = $wpdb->get_row( "SELECT * FROM $wp_dlm_db  WHERE id = ".$wpdb->escape($ebd_item->download_id).";" );
+      $dl = $wpdb->get_row( "SELECT * FROM $wp_dlm_db  WHERE id = ".esc_sql($ebd_item->download_id).";" );
 
       //another way of getting downloads from download monitor
       $downloads = get_downloads('include='.$ebd_item->download_id.'');
@@ -87,7 +87,7 @@
       else $file = do_shortcode('[download_data id="'.$ebd_item->download_id.'" data="download_link"]');
      }
   }
-  $wpdb->update( $table_link, array("is_downloaded"=>1), array("uid"=>$wpdb->escape($dId)) );
+  $wpdb->update( $table_link, array("is_downloaded"=>1), array("uid"=>esc_sql($dId)) );
 
 
 //Check if the cUrl functions are available and the url hide option is enabled.
