@@ -47,7 +47,7 @@
     header("Location: $file");
     exit(0);
   }
-  $ebd_item = $wpdb->get_row( "SELECT * FROM $table_item  WHERE id = ".esc_sql($ebd_link->item_id).";" );
+  $ebd_item = $wpdb->get_row( "SELECT * FROM $table_item  WHERE id = '".esc_sql($ebd_link->item_id)."';" );
 
   $is_masked = get_option('email_before_download_hide');
   //is the "hide" option overriden for the individual download
@@ -63,7 +63,7 @@
   }
   if($ebd_item->download_id){
     if(!$is_new_dm){
-      $dl = $wpdb->get_row( "SELECT * FROM $wp_dlm_db  WHERE id = ".esc_sql($ebd_item->download_id).";" );
+      $dl = $wpdb->get_row( "SELECT * FROM $wp_dlm_db  WHERE id = '".esc_sql($ebd_item->download_id)."';" );
 
       //another way of getting downloads from download monitor
       $downloads = get_downloads('include='.$ebd_item->download_id.'');

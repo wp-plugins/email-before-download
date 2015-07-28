@@ -106,6 +106,9 @@ This is the list of all short code attributes that can be used.   Some of them o
 
 == Changelog ==
 
+=3.4.1=
+* Fixed issue related to SQL functions used in code.
+
 =3.4=
 * Updated deprecated WPDB escape functionality to new one.
 

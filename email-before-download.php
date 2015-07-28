@@ -157,7 +157,7 @@ function emailreqtag_func($atts) {
     foreach ($dldArray as $dl_id) {
       $d = NULL;   
       if(!$is_new_dm){
-        $dl = $wpdb->get_row( "SELECT * FROM $wp_dlm_db  WHERE id = ".esc_sql($dl_id).";" );
+        $dl = $wpdb->get_row( "SELECT * FROM $wp_dlm_db  WHERE id = '".esc_sql($dl_id)."';" );
         $d = new downloadable_file($dl);
       }
       else{
@@ -201,7 +201,7 @@ function emailreqtag_func($atts) {
     if (empty($ebd_item)){
       $wpdb->insert( $table_item, array("download_id"=>$download_id, "title"=>$title) );
       $download_id = $wpdb->insert_id;
-      $ebd_item = $wpdb->get_row( "SELECT * FROM $table_item  WHERE id = ".esc_sql($download_id).";" );
+      $ebd_item = $wpdb->get_row( "SELECT * FROM $table_item  WHERE id = '".esc_sql($download_id)."';" );
     }
     else $download_id = $ebd_item->id;
     //update title if needed
@@ -442,7 +442,7 @@ function ebd_process_email_form( $cf7 ) {
     if($dIds)
       foreach($dIds as $id){
         if(!$is_new_dm){
-          $dl_it = $wpdb->get_row( "SELECT * FROM $wp_dlm_db  WHERE id = ".esc_sql($id).";" );
+          $dl_it = $wpdb->get_row( "SELECT * FROM $wp_dlm_db  WHERE id = '".esc_sql($id)."';" );
 
           $dl_items[] = new downloadable_file($dl_it);
         }
@@ -462,13 +462,13 @@ function ebd_process_email_form( $cf7 ) {
     //get edb items: it's common for all
     $dId = $_POST['_wpcf7_download_id'];
     
-    $ebd_item = $wpdb->get_row( "SELECT * FROM $table_item  WHERE id = ".esc_sql($dId).";" );
+    $ebd_item = $wpdb->get_row( "SELECT * FROM $table_item  WHERE id = '".esc_sql($dId)."';" );
 
     $d = null;
     $dl = null; 
     //get single download, multible are comma separated so the $dl for this will be NULL
     if(!$is_new_dm){
-      $dl = $wpdb->get_row( "SELECT * FROM $wp_dlm_db  WHERE id = ".esc_sql($ebd_item->download_id).";" );
+      $dl = $wpdb->get_row( "SELECT * FROM $wp_dlm_db  WHERE id = '".esc_sql($ebd_item->download_id)."';" );
       $d = new downloadable_file($dl);
     }
     else{
