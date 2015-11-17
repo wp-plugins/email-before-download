@@ -429,7 +429,7 @@ function ebd_process_email_form( $cf7 ) {
 
 
     //get selected downloads
-    $dIds = $_POST['ebd_downloads'];
+    $dIds = isset($_POST['ebd_downloads']) ? $_POST['ebd_downloads'] : false;
 
     $dl_items = array();
     $multipleLinks = '';
